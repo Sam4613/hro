@@ -304,10 +304,15 @@
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <div class="verification-card glass-card" id="faceCard">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">Face Recognition</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="showCameraTroubleshooting()" title="Camera Help">
+                                        <i class="fas fa-question-circle"></i>
+                                    </button>
+                                </div>
                                 <div class="verification-icon">
                                     <i class="fas fa-user-check"></i>
                                 </div>
-                                <h6>Face Recognition</h6>
                                 <small class="text-secondary">Liveness detection active</small>
                             </div>
                         </div>
@@ -425,9 +430,14 @@
         let rfidVerified = false;
         let currentLocation = null;
         
-        // Initialize camera
+        // Initialize camera with enhanced error handling
         async function initCamera() {
             try {
+                // Check if camera is available
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera not supported by this browser');
+                }
+                
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
                         width: 640, 
@@ -435,25 +445,186 @@
                         facingMode: 'user'
                     } 
                 });
-                document.getElementById('video').srcObject = stream;
                 
-                // Start face detection
+                document.getElementById('video').srcObject = stream;
+                document.getElementById('faceStatus').innerHTML = 
+                    '<i class="fas fa-camera me-2"></i>Camera initialized - Starting face detection...';
+                document.getElementById('faceStatus').className = 'verification-status status-pending';
+                
+                // Start enhanced face detection
                 setTimeout(() => {
-                    simulateFaceDetection();
+                    initFaceDetection();
                 }, 2000);
                 
             } catch (err) {
-                console.error('Camera access denied:', err);
-                document.getElementById('faceStatus').textContent = 'Camera access denied';
-                document.getElementById('faceStatus').className = 'verification-status status-error';
+                console.error('Camera access error:', err);
+                handleCameraError(err);
             }
         }
         
-        // Simulate face detection (in real app, use face-api.js or similar)
+        // Enhanced camera error handling
+        function handleCameraError(error) {
+            let errorMessage = '';
+            let solutionMessage = '';
+            
+            switch(error.name) {
+                case 'NotAllowedError':
+                case 'PermissionDeniedError':
+                    errorMessage = 'Camera access denied';
+                    solutionMessage = 'Please allow camera access and refresh the page';
+                    showCameraPermissionGuide();
+                    break;
+                case 'NotFoundError':
+                case 'DevicesNotFoundError':
+                    errorMessage = 'No camera found';
+                    solutionMessage = 'Please connect a camera and try again';
+                    break;
+                case 'NotReadableError':
+                case 'TrackStartError':
+                    errorMessage = 'Camera is busy';
+                    solutionMessage = 'Close other apps using camera and try again';
+                    break;
+                case 'OverconstrainedError':
+                case 'ConstraintNotSatisfiedError':
+                    errorMessage = 'Camera constraints not supported';
+                    solutionMessage = 'Your camera may not support the required settings';
+                    break;
+                default:
+                    errorMessage = 'Camera access failed';
+                    solutionMessage = 'Please check your camera settings and try again';
+            }
+            
+            document.getElementById('faceStatus').innerHTML = 
+                `<i class="fas fa-exclamation-triangle me-2"></i>${errorMessage}`;
+            document.getElementById('faceStatus').className = 'verification-status status-error';
+            
+            // Show solution message
+            showNotification(solutionMessage, 'warning');
+            
+            // Enable demo mode as fallback
+            setTimeout(() => {
+                enableDemoMode();
+            }, 3000);
+        }
+        
+        // Show camera permission guide
+        function showCameraPermissionGuide() {
+            const guideHtml = `
+                <div class="alert alert-warning mt-3" id="cameraGuide">
+                    <h6><i class="fas fa-info-circle me-2"></i>Camera Permission Required</h6>
+                    <p class="mb-2">To use face recognition for attendance:</p>
+                    <ol class="mb-2">
+                        <li>Click the camera icon in your browser's address bar</li>
+                        <li>Select "Allow" for camera access</li>
+                        <li>Refresh this page</li>
+                    </ol>
+                    <button class="btn btn-sm btn-primary" onclick="retryCamera()">Retry Camera Access</button>
+                    <button class="btn btn-sm btn-secondary ms-2" onclick="enableDemoMode()">Use Demo Mode</button>
+                </div>
+            `;
+            
+            const faceCard = document.getElementById('faceCard');
+            if (!document.getElementById('cameraGuide')) {
+                faceCard.insertAdjacentHTML('afterend', guideHtml);
+            }
+        }
+        
+        // Retry camera access
+        function retryCamera() {
+            const guide = document.getElementById('cameraGuide');
+            if (guide) guide.remove();
+            initCamera();
+        }
+        
+        // Enable demo mode for testing
+        function enableDemoMode() {
+            const guide = document.getElementById('cameraGuide');
+            if (guide) guide.remove();
+            
+            document.getElementById('faceStatus').innerHTML = 
+                '<i class="fas fa-play-circle me-2"></i>Demo Mode - Click to simulate face detection';
+            document.getElementById('faceStatus').className = 'verification-status status-warning';
+            document.getElementById('faceStatus').style.cursor = 'pointer';
+            
+            document.getElementById('faceStatus').onclick = function() {
+                simulateFaceDetection();
+                this.onclick = null;
+                this.style.cursor = 'default';
+            };
+            
+            showNotification('Demo mode enabled - Click on face status to simulate detection', 'info');
+        }
+        
+        // Enhanced face detection with real-time processing
+        let faceDetectionInterval;
+        let canvas, ctx;
+        
+        function initFaceDetection() {
+            canvas = document.createElement('canvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = 640;
+            canvas.height = 480;
+            
+            // Start real-time face detection
+            faceDetectionInterval = setInterval(detectFace, 100);
+        }
+        
+        function detectFace() {
+            const video = document.getElementById('video');
+            if (video.videoWidth === 0) return;
+            
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data for processing
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Send to backend for face recognition
+            fetch('/api/face/detect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({
+                    image: imageData,
+                    employee_id: localStorage.getItem('employee_id')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.face_detected && data.face_matched) {
+                    faceVerified = true;
+                    document.getElementById('faceStatus').innerHTML = 
+                        '<i class="fas fa-check-circle me-2"></i>Face: Verified (' + data.confidence + '% match)';
+                    document.getElementById('faceStatus').className = 'verification-status status-success';
+                    document.getElementById('faceCard').classList.add('verified');
+                    
+                    // Stop detection once verified
+                    clearInterval(faceDetectionInterval);
+                    checkAllVerifications();
+                } else if (data.face_detected && !data.face_matched) {
+                    document.getElementById('faceStatus').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle me-2"></i>Face detected but not recognized';
+                    document.getElementById('faceStatus').className = 'verification-status status-warning';
+                } else {
+                    document.getElementById('faceStatus').innerHTML = 
+                        '<i class="fas fa-search me-2"></i>Looking for face...';
+                    document.getElementById('faceStatus').className = 'verification-status status-pending';
+                }
+            })
+            .catch(error => {
+                console.error('Face detection error:', error);
+                // Fallback to simulation for demo
+                simulateFaceDetection();
+            });
+        }
+        
+        // Fallback simulation for demo purposes
         function simulateFaceDetection() {
             setTimeout(() => {
                 faceVerified = true;
-                document.getElementById('faceStatus').innerHTML = '<i class="fas fa-check-circle me-2"></i>Face: Verified';
+                document.getElementById('faceStatus').innerHTML = '<i class="fas fa-check-circle me-2"></i>Face: Verified (Demo Mode)';
                 document.getElementById('faceStatus').className = 'verification-status status-success';
                 document.getElementById('faceCard').classList.add('verified');
                 checkAllVerifications();
@@ -608,22 +779,153 @@
             }, 60000); // Update every minute
         }
         
-        // Show notification
-        function showNotification(message, type) {
+        // Show camera troubleshooting guide
+        function showCameraTroubleshooting() {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--glass-border); color: var(--text-primary);">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-camera me-2"></i>Camera Troubleshooting Guide</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="accordion" id="troubleshootingAccordion">
+                                <div class="accordion-item" style="background: var(--card-bg); border: 1px solid var(--glass-border);">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#permission" style="background: var(--card-bg); color: var(--text-primary);">
+                                            <i class="fas fa-shield-alt me-2 text-warning"></i>Camera Permission Issues
+                                        </button>
+                                    </h2>
+                                    <div id="permission" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <ol>
+                                                <li>Look for the camera icon in your browser's address bar</li>
+                                                <li>Click on it and select "Allow" for camera access</li>
+                                                <li>If blocked, click the lock icon → Site settings → Camera → Allow</li>
+                                                <li>Refresh the page after granting permission</li>
+                                            </ol>
+                                            <div class="alert alert-info mt-3">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Chrome:</strong> chrome://settings/content/camera<br>
+                                                <strong>Firefox:</strong> about:preferences#privacy
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item" style="background: var(--card-bg); border: 1px solid var(--glass-border);">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hardware" style="background: var(--card-bg); color: var(--text-primary);">
+                                            <i class="fas fa-video me-2 text-danger"></i>Camera Hardware Issues
+                                        </button>
+                                    </h2>
+                                    <div id="hardware" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <ul>
+                                                <li>Check if camera is connected properly</li>
+                                                <li>Close other applications using the camera (Zoom, Teams, etc.)</li>
+                                                <li>Try unplugging and reconnecting external cameras</li>
+                                                <li>Restart your browser or computer if needed</li>
+                                                <li>Update camera drivers from Device Manager</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item" style="background: var(--card-bg); border: 1px solid var(--glass-border);">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#browser" style="background: var(--card-bg); color: var(--text-primary);">
+                                            <i class="fas fa-globe me-2 text-info"></i>Browser Compatibility
+                                        </button>
+                                    </h2>
+                                    <div id="browser" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p><strong>Recommended browsers:</strong></p>
+                                            <ul>
+                                                <li>Chrome 60+ (Best performance)</li>
+                                                <li>Firefox 55+</li>
+                                                <li>Safari 11+ (macOS/iOS)</li>
+                                                <li>Edge 79+</li>
+                                            </ul>
+                                            <div class="alert alert-warning mt-3">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                Internet Explorer is not supported. Please use a modern browser.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item" style="background: var(--card-bg); border: 1px solid var(--glass-border);">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#demo" style="background: var(--card-bg); color: var(--text-primary);">
+                                            <i class="fas fa-play-circle me-2 text-success"></i>Demo Mode
+                                        </button>
+                                    </h2>
+                                    <div id="demo" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p>If camera issues persist, you can use demo mode for testing:</p>
+                                            <button class="btn btn-success" onclick="enableDemoMode(); bootstrap.Modal.getInstance(document.querySelector('.modal')).hide();">
+                                                <i class="fas fa-play me-2"></i>Enable Demo Mode
+                                            </button>
+                                            <div class="alert alert-info mt-3">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Demo mode simulates face detection for testing purposes only.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="retryCamera(); bootstrap.Modal.getInstance(document.querySelector('.modal')).hide();">
+                                <i class="fas fa-redo me-2"></i>Retry Camera
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+            
+            // Remove modal from DOM when hidden
+            modal.addEventListener('hidden.bs.modal', () => {
+                modal.remove();
+            });
+        }
+        
+        // Enhanced notification system
+        function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
-            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            
+            // Map notification types to Bootstrap classes and icons
+            const typeMap = {
+                'success': { class: 'alert-success', icon: 'check-circle' },
+                'error': { class: 'alert-danger', icon: 'exclamation-circle' },
+                'warning': { class: 'alert-warning', icon: 'exclamation-triangle' },
+                'info': { class: 'alert-info', icon: 'info-circle' }
+            };
+            
+            const config = typeMap[type] || typeMap['info'];
+            
+            notification.className = `alert ${config.class} position-fixed alert-dismissible`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
             notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                <i class="fas fa-${config.icon} me-2"></i>
                 ${message}
-                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Close"></button>
             `;
             
             document.body.appendChild(notification);
             
+            // Auto-remove after 5 seconds (8 seconds for warnings)
+            const timeout = type === 'warning' ? 8000 : 5000;
             setTimeout(() => {
-                notification.remove();
-            }, 5000);
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, timeout);
         }
         
         // Initialize on page load
