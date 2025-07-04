@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <style>
         :root {
             --primary-purple: #8B5CF6;
@@ -1526,27 +1527,20 @@
                     progress: 0
                 };
                 
-                // Create task via API
-                fetch('/api/tasks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
-                    },
-                    body: JSON.stringify(newTask)
-                })
-                .then(response => response.json())
+                // Create task via API using auth manager
+                hrAPI.createTask(newTask)
                 .then(result => {
                     if (result.success) {
                         modal.hide();
+                        showNotification('✅ Task created successfully!', 'success');
                         location.reload(); // Refresh to show new task
                     } else {
-                        alert('Error creating task: ' + (result.error || 'Unknown error'));
+                        showNotification('❌ Error creating task: ' + (result.error || 'Unknown error'), 'danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error creating task:', error);
-                    alert('Error creating task. Please try again.');
+                    showNotification('❌ Error creating task. Please try again.', 'danger');
                 });
             });
         }
@@ -1703,12 +1697,8 @@
                 };
                 
                 // Submit leave request via API
-                fetch('/api/leaves', {
+                auth.apiRequest('/api/leaves', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
-                    },
                     body: JSON.stringify(leaveData)
                 })
                 .then(response => response.json())
@@ -1901,12 +1891,8 @@
                         end_date: document.getElementById('endDateReport')?.value
                     };
                     
-                    fetch('/api/reports/generate', {
+                    auth.apiRequest('/api/reports/generate', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
-                        },
                         body: JSON.stringify(reportData)
                     })
                     .then(response => response.json())
@@ -1932,6 +1918,15 @@
         
         // Initialize timers for tasks in progress
         document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            if (!auth.isAuthenticated()) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update navbar with user info
+            auth.updateNavbar();
+            
             // Start timer for task3 (already in progress)
             timers['task3'] = {
                 startTime: Date.now() - (2 * 3600000 + 34 * 60000 + 15 * 1000), // 2:34:15 ago

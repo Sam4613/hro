@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Staff Location Map - HR Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .map-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin: 20px;
+        }
+        .map-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .staff-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        .staff-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .staff-item:hover {
+            background: #f8f9fa;
+        }
+        .status-online {
+            color: #28a745;
+        }
+        .status-offline {
+            color: #dc3545;
+        }
+        .status-away {
+            color: #ffc107;
+        }
+        .refresh-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="map-container">
+            <div class="map-header">
+                <h2><i class="fas fa-map-marker-alt"></i> Live Staff Location Tracking</h2>
+                <p class="mb-0">Real-time GPS monitoring with AI-powered insights</p>
+            </div>
+            
+            <!-- Refresh Button -->
+            <button class="btn btn-primary refresh-btn" onclick="refreshLocations()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            
+            <!-- Staff Info Panel -->
+            <div class="staff-info">
+                <h6><i class="fas fa-users"></i> Staff Status</h6>
+                <div id="staffList">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading staff locations...
+                    </div>
+                </div>
+                <hr>
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt"></i> Blockchain-secured tracking
+                </small>
+            </div>
+            
+            <!-- Google Map -->
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let staffData = [];
+
+        // Initialize Google Map
+        function initMap() {
+            // Default center (Bangalore, India)
+            const defaultCenter = { lat: 12.9716, lng: 77.5946 };
+            
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: defaultCenter,
+                styles: [
+                    {
+                        featureType: 'all',
+                        elementType: 'geometry.fill',
+                        stylers: [{ weight: '2.00' }]
+                    },
+                    {
+                        featureType: 'all',
+                        elementType: 'geometry.stroke',
+                        stylers: [{ color: '#9c9c9c' }]
+                    }
+                ]
+            });
+            
+            // Load staff locations
+            loadStaffLocations();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadStaffLocations, 30000);
+        }
+
+        // Load staff locations from API
+        async function loadStaffLocations() {
+            try {
+                const response = await fetch('/api/location/live-map');
+                const data = await response.json();
+                
+                if (data.success) {
+                    staffData = data.locations;
+                    updateMap();
+                    updateStaffList();
+                } else {
+                    console.error('Failed to load locations:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading locations:', error);
+                document.getElementById('staffList').innerHTML = `
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Error loading locations
+                    </div>
+                `;
+            }
+        }
+
+        // Update map markers
+        function updateMap() {
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            // Add new markers
+            staffData.forEach(staff => {
+                if (staff.latitude && staff.longitude) {
+                    const position = {
+                        lat: parseFloat(staff.latitude),
+                        lng: parseFloat(staff.longitude)
+                    };
+                    
+                    // Choose marker color based on status
+                    let markerColor = '#28a745'; // green for online
+                    if (staff.status === 'offline') markerColor = '#dc3545'; // red
+                    if (staff.status === 'away') markerColor = '#ffc107'; // yellow
+                    
+                    const marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: staff.name,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: markerColor,
+                            fillOpacity: 0.8,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 2
+                        }
+                    });
+                    
+                    // Info window
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div style="padding: 10px;">
+                                <h6><i class="fas fa-user"></i> ${staff.name}</h6>
+                                <p><strong>Department:</strong> ${staff.department || 'N/A'}</p>
+                                <p><strong>Status:</strong> <span class="status-${staff.status}">${staff.status}</span></p>
+                                <p><strong>Last Update:</strong> ${new Date(staff.last_update).toLocaleString()}</p>
+                                <p><strong>Location:</strong> ${staff.address || 'Fetching address...'}</p>
+                            </div>
+                        `
+                    });
+                    
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                    
+                    markers.push(marker);
+                }
+            });
+            
+            // Adjust map bounds to show all markers
+            if (markers.length > 0) {
+                const bounds = new google.maps.LatLngBounds();
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.fitBounds(bounds);
+            }
+        }
+
+        // Update staff list panel
+        function updateStaffList() {
+            const staffList = document.getElementById('staffList');
+            
+            if (staffData.length === 0) {
+                staffList.innerHTML = `
+                    <div class="text-muted text-center">
+                        <i class="fas fa-map-marker-alt"></i><br>
+                        No staff locations available
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            staffData.forEach(staff => {
+                const statusIcon = staff.status === 'online' ? 'fa-circle' : 
+                                 staff.status === 'away' ? 'fa-clock' : 'fa-times-circle';
+                
+                html += `
+                    <div class="staff-item" onclick="focusOnStaff('${staff.user_id}')">
+                        <i class="fas ${statusIcon} status-${staff.status} me-2"></i>
+                        <div>
+                            <strong>${staff.name}</strong><br>
+                            <small class="text-muted">${staff.department || 'N/A'}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            staffList.innerHTML = html;
+        }
+
+        // Focus on specific staff member
+        function focusOnStaff(userId) {
+            const staff = staffData.find(s => s.user_id === userId);
+            if (staff && staff.latitude && staff.longitude) {
+                const position = {
+                    lat: parseFloat(staff.latitude),
+                    lng: parseFloat(staff.longitude)
+                };
+                map.setCenter(position);
+                map.setZoom(16);
+                
+                // Find and click the marker
+                const marker = markers.find(m => 
+                    m.getPosition().lat() === position.lat && 
+                    m.getPosition().lng() === position.lng
+                );
+                if (marker) {
+                    google.maps.event.trigger(marker, 'click');
+                }
+            }
+        }
+
+        // Refresh locations manually
+        function refreshLocations() {
+            const btn = document.querySelector('.refresh-btn');
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('fa-spin');
+            loadStaffLocations().finally(() => {
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                }, 1000);
+            });
+        }
+
+        // Navigation
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    
+    <!-- Google Maps API -->
+    <script async defer 
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxHySdYo4jdHd3m9Elr2c9BMCjAuRxZzU&callback=initMap">
+    </script>
+</body>
+</html>
