@@ -1,0 +1,58 @@
+{
+    "production": {
+        "app_function": "app.app",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "hr-suite",
+        "runtime": "python3.9",
+        "s3_bucket": "hr-suite-lambda-deployments",
+        "memory_size": 512,
+        "timeout_seconds": 30,
+        "environment_variables": {
+            "FLASK_ENV": "production",
+            "FLASK_DEBUG": "False"
+        },
+        "aws_environment_variables": {
+            "MONGODB_URI": "mongodb+srv://username:password@cluster.mongodb.net/hr_suite",
+            "SECRET_KEY": "your-super-secret-key-change-this"
+        },
+        "cors": true,
+        "binary_support": false,
+        "keep_warm": false,
+        "slim_handler": true,
+        "exclude": [
+            "*.git*",
+            "*.DS_Store*",
+            "*.zip",
+            "__pycache__",
+            "*.pyc",
+            "tests/",
+            "docs/",
+            "README.md",
+            "DEPLOYMENT.md",
+            "AWS_DEPLOYMENT.md"
+        ],
+        "vpc_config": {
+            "SubnetIds": [],
+            "SecurityGroupIds": []
+        },
+        "tags": {
+            "Environment": "production",
+            "Project": "hr-suite",
+            "Owner": "snashworld"
+        }
+    },
+    "staging": {
+        "extends": "production",
+        "aws_environment_variables": {
+            "FLASK_ENV": "staging",
+            "FLASK_DEBUG": "True"
+        },
+        "memory_size": 256,
+        "tags": {
+            "Environment": "staging",
+            "Project": "hr-suite",
+            "Owner": "snashworld"
+        }
+    }
+}

@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Management - HR Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --accent-mint: #10B981;
+            --accent-blue: #3B82F6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-green: #22C55E;
+            --dark-bg: #0F0F23;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            opacity: 0.6;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--corporate-glow), var(--card-shadow);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            gap: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--accent-mint);
+            border-color: var(--accent-mint);
+            color: white;
+        }
+
+        /* Risk Cards */
+        .risk-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .risk-card:hover::before {
+            left: 100%;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.15);
+        }
+
+        .risk-high {
+            border-color: var(--accent-red);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--card-bg));
+        }
+
+        .risk-medium {
+            border-color: var(--accent-orange);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), var(--card-bg));
+        }
+
+        .risk-low {
+            border-color: var(--accent-green);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), var(--card-bg));
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .employee-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+        }
+
+        .employee-title {
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .employee-department {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+        }
+
+        .risk-score {
+            text-align: center;
+            margin-left: 1rem;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+        }
+
+        .score-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 2px solid var(--accent-orange);
+        }
+
+        .score-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 2px solid var(--accent-green);
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-factors {
+            margin-bottom: 1rem;
+        }
+
+        .factor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .factor-item:last-child {
+            border-bottom: none;
+        }
+
+        .factor-name {
+            font-size: 0.9rem;
+        }
+
+        .factor-value {
+            font-weight: 600;
+        }
+
+        .factor-high {
+            color: var(--accent-red);
+        }
+
+        .factor-medium {
+            color: var(--accent-orange);
+        }
+
+        .factor-low {
+            color: var(--accent-green);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary-action {
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-blue));
+            color: white;
+        }
+
+        .btn-primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary-action {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary-action:hover {
+            background: var(--primary-purple);
+            color: white;
+            border-color: var(--primary-purple);
+        }
+
+        /* Resignation Form */
+        .resignation-form {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-mint);
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+            color: var(--text-primary);
+        }
+
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+        }
+
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-mint);
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        }
+
+        /* Settlement Calculator */
+        .settlement-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .settlement-item.total {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid var(--accent-mint);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .settlement-label {
+            display: flex;
+            align-items: center;
+        }
+
+        .settlement-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .icon-positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .icon-negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .settlement-amount {
+            font-weight: 600;
+        }
+
+        .amount-positive {
+            color: var(--accent-green);
+        }
+
+        .amount-negative {
+            color: var(--accent-red);
+        }
+
+        /* Exit Interview */
+        .feedback-section {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #FFD700;
+        }
+
+        /* AI Insights */
+        .ai-insight {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), var(--card-bg));
+            border: 1px solid var(--primary-purple);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-mint));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-processing {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .status-completed {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--primary-purple);
+            border: 1px solid var(--primary-purple);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .employee-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .employee-avatar {
+                margin: 0 auto 1rem;
+            }
+            
+            .risk-score {
+                margin: 1rem auto 0;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                <i class="fas fa-brain me-2" style="color: var(--primary-purple);"></i>
+                HR Suite <span style="color: var(--accent-mint);">AI</span>
+            </a>
+            
+            <ul class="nav nav-tabs ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/attendance"><i class="fas fa-clock me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/employees"><i class="fas fa-users me-2"></i>Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ai-assistant"><i class="fas fa-robot me-2"></i>AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rewards"><i class="fas fa-coins me-2"></i>Rewards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/payroll"><i class="fas fa-money-bill-wave me-2"></i>Payroll</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/leave"><i class="fas fa-calendar-alt me-2"></i>Leave</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/learning"><i class="fas fa-graduation-cap me-2"></i>Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/recruitment"><i class="fas fa-user-plus me-2"></i>Recruitment</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/exit"><i class="fas fa-sign-out-alt me-2"></i>Exit</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>
+                    <i class="fas fa-sign-out-alt me-2" style="color: var(--accent-red);"></i>
+                    Exit Management
+                </h3>
+            </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <ul class="nav nav-pills" id="exitTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="attrition-tab" data-bs-toggle="pill" data-bs-target="#attrition" type="button" role="tab">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Attrition Risk
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="resignation-tab" data-bs-toggle="pill" data-bs-target="#resignation" type="button" role="tab">
+                            <i class="fas fa-file-signature me-2"></i>Resignation Portal
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="settlement-tab" data-bs-toggle="pill" data-bs-target="#settlement" type="button" role="tab">
+                            <i class="fas fa-calculator me-2"></i>Final Settlement
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="feedback-tab" data-bs-toggle="pill" data-bs-target="#feedback" type="button" role="tab">
+                            <i class="fas fa-comments me-2"></i>Exit Interview
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="exitTabContent">
+            <!-- Attrition Risk Tab -->
+            <div class="tab-pane fade show active" id="attrition" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- High Risk Employees -->
+                        <div class="glass-card mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-exclamation-triangle me-2" style="color: var(--accent-red);"></i>
+                                High Attrition Risk Employees
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="risk-card risk-high">
+                                        <div class="employee-header">
+                                            <div class="employee-avatar">AM</div>
+                                            <div class="employee-info">
+                                                <div class="employee-name">Ahmed Malik</div>
+                                                <div class="employee-title">Senior Software Engineer</div>
+                                                <div class="employee-department">Engineering</div>
+                                            </div>
+                                            <div class="risk-score">
+                                                <div class="score-circle score-high">87%</div>
+                                                <div class="score-label">Risk Score</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="risk-factors">
+                                            <div class="factor-item">
+                                                <span class="factor-name">Job Satisfaction</span>
+                                                <span class="factor-value factor-high">Low</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Workload Stress</span>
+                                                <span class="factor-value factor-high">High</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Career Growth</span>
+                                                <span class="factor-value factor-medium">Stagnant</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Team Dynamics</span>
+                                                <span class="factor-value factor-medium">Average</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-primary-action" onclick="scheduleRetentionMeeting('ahmed-malik')">
+                                                <i class="fas fa-calendar me-1"></i>Schedule 1:1
+                                            </button>
+                                            <button class="btn-action btn-secondary-action" onclick="viewEmployeeDetails('ahmed-malik')">
+                                                <i class="fas fa-eye me-1"></i>View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="risk-card risk-medium">
+                                        <div class="employee-header">
+                                            <div class="employee-avatar">SP</div>
+                                            <div class="employee-info">
+                                                <div class="employee-name">Sophia Patel</div>
+                                                <div class="employee-title">Product Designer</div>
+                                                <div class="employee-department">Design</div>
+                                            </div>
+                                            <div class="risk-score">
+                                                <div class="score-circle score-medium">64%</div>
+                                                <div class="score-label">Risk Score</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="risk-factors">
+                                            <div class="factor-item">
+                                                <span class="factor-name">Job Satisfaction</span>
+                                                <span class="factor-value factor-medium">Average</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Work-Life Balance</span>
+                                                <span class="factor-value factor-medium">Poor</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Compensation</span>
+                                                <span class="factor-value factor-low">Satisfied</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Learning Opportunities</span>
+                                                <span class="factor-value factor-medium">Limited</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-primary-action" onclick="scheduleRetentionMeeting('sophia-patel')">
+                                                <i class="fas fa-calendar me-1"></i>Schedule 1:1
+                                            </button>
+                                            <button class="btn-action btn-secondary-action" onclick="viewEmployeeDetails('sophia-patel')">
+                                                <i class="fas fa-eye me-1"></i>View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="risk-card risk-low">
+                                        <div class="employee-header">
+                                            <div class="employee-avatar">RK</div>
+                                            <div class="employee-info">
+                                                <div class="employee-name">Raj Kumar</div>
+                                                <div class="employee-title">Data Analyst</div>
+                                                <div class="employee-department">Analytics</div>
+                                            </div>
+                                            <div class="risk-score">
+                                                <div class="score-circle score-low">23%</div>
+                                                <div class="score-label">Risk Score</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="risk-factors">
+                                            <div class="factor-item">
+                                                <span class="factor-name">Job Satisfaction</span>
+                                                <span class="factor-value factor-low">High</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Team Collaboration</span>
+                                                <span class="factor-value factor-low">Excellent</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Career Growth</span>
+                                                <span class="factor-value factor-low">On Track</span>
+                                            </div>
+                                            <div class="factor-item">
+                                                <span class="factor-name">Work Environment</span>
+                                                <span class="factor-value factor-low">Positive</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-primary-action" onclick="sendAppreciation('raj-kumar')">
+                                                <i class="fas fa-heart me-1"></i>Send Kudos
+                                            </button>
+                                            <button class="btn-action btn-secondary-action" onclick="viewEmployeeDetails('raj-kumar')">
+                                                <i class="fas fa-eye me-1"></i>View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- AI Attrition Insights -->
+                        <div class="ai-insight mb-4">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">AI Attrition Insights</div>
+                                    <div class="insight-description">Predictive analytics for retention</div>
+                                </div>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-chart-line me-2" style="color: var(--accent-red);"></i>
+                                    <small>Attrition risk increased 15% this quarter</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-users me-2" style="color: var(--accent-orange);"></i>
+                                    <small>Engineering team shows highest risk (3 employees)</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock me-2" style="color: var(--accent-blue);"></i>
+                                    <small>Average tenure before leaving: 2.3 years</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-lightbulb me-2" style="color: var(--accent-mint);"></i>
+                                    <small>Recommend immediate intervention for Ahmed</small>
+                                </li>
+                                <li>
+                                    <i class="fas fa-target me-2" style="color: var(--primary-purple);"></i>
+                                    <small>Focus on career development programs</small>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Attrition Statistics -->
+                        <div class="glass-card">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-pie me-2" style="color: var(--accent-blue);"></i>
+                                Attrition Statistics
+                            </h6>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Current Month</span>
+                                <span class="fw-bold text-danger">2 resignations</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>This Quarter</span>
+                                <span class="fw-bold">8 resignations</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Annual Rate</span>
+                                <span class="fw-bold text-warning">12.5%</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>High Risk Employees</span>
+                                <span class="fw-bold text-danger">5</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Retention Actions</span>
+                                <span class="fw-bold text-success">3 scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resignation Portal Tab -->
+            <div class="tab-pane fade" id="resignation" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Resignation Form -->
+                        <div class="resignation-form">
+                            <h5 class="mb-4">
+                                <i class="fas fa-file-signature me-2" style="color: var(--accent-orange);"></i>
+                                Submit Resignation
+                            </h5>
+                            
+                            <form id="resignationForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Employee ID</label>
+                                            <input type="text" class="form-control" value="EMP1001" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" value="Ahmed Malik" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Department</label>
+                                            <input type="text" class="form-control" value="Engineering" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Position</label>
+                                            <input type="text" class="form-control" value="Senior Software Engineer" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Resignation Date *</label>
+                                            <input type="date" class="form-control" id="resignationDate" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Last Working Day *</label>
+                                            <input type="date" class="form-control" id="lastWorkingDay" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Reason for Resignation *</label>
+                                    <select class="form-select" id="resignationReason" required>
+                                        <option value="">Select reason...</option>
+                                        <option value="better-opportunity">Better Career Opportunity</option>
+                                        <option value="higher-compensation">Higher Compensation</option>
+                                        <option value="work-life-balance">Work-Life Balance</option>
+                                        <option value="relocation">Relocation</option>
+                                        <option value="personal-reasons">Personal Reasons</option>
+                                        <option value="health-issues">Health Issues</option>
+                                        <option value="further-studies">Further Studies</option>
+                                        <option value="retirement">Retirement</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Detailed Reason</label>
+                                    <textarea class="form-control" rows="4" placeholder="Please provide more details about your resignation..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Notice Period</label>
+                                    <select class="form-select" id="noticePeriod">
+                                        <option value="30">30 Days (Standard)</option>
+                                        <option value="60">60 Days</option>
+                                        <option value="90">90 Days</option>
+                                        <option value="immediate">Immediate (Emergency)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Handover Notes</label>
+                                    <textarea class="form-control" rows="3" placeholder="Brief notes about ongoing projects and handover requirements..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirmResignation" required>
+                                        <label class="form-check-label" for="confirmResignation">
+                                            I confirm that I want to submit my resignation and understand that this action cannot be undone.
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn-action btn-primary-action">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Resignation
+                                    </button>
+                                    <button type="button" class="btn-action btn-secondary-action" onclick="saveDraft()">
+                                        <i class="fas fa-save me-2"></i>Save as Draft
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- Resignation Guidelines -->
+                        <div class="glass-card mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-info-circle me-2" style="color: var(--accent-blue);"></i>
+                                Resignation Guidelines
+                            </h6>
+                            
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-clock me-2" style="color: var(--accent-mint);"></i>
+                                    <small>Standard notice period is 30 days</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-handshake me-2" style="color: var(--accent-blue);"></i>
+                                    <small>Complete handover of all projects</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-key me-2" style="color: var(--accent-orange);"></i>
+                                    <small>Return all company assets</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-file-alt me-2" style="color: var(--primary-purple);"></i>
+                                    <small>Complete exit interview process</small>
+                                </li>
+                                <li>
+                                    <i class="fas fa-calculator me-2" style="color: var(--accent-green);"></i>
+                                    <small>Final settlement will be processed</small>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Recent Resignations -->
+                        <div class="glass-card">
+                            <h6 class="mb-3">
+                                <i class="fas fa-history me-2" style="color: var(--accent-orange);"></i>
+                                Recent Resignations
+                            </h6>
+                            
+                            <div class="d-flex align-items-center mb-3 p-2" style="background: rgba(239, 68, 68, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="employee-avatar" style="width: 40px; height: 40px; font-size: 1rem;">MR</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Maya Rodriguez</div>
+                                    <small class="text-secondary">Marketing Manager</small>
+                                </div>
+                                <div class="status-badge status-processing">Processing</div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-3 p-2" style="background: rgba(245, 158, 11, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="employee-avatar" style="width: 40px; height: 40px; font-size: 1rem;">JD</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">John Davis</div>
+                                    <small class="text-secondary">Sales Executive</small>
+                                </div>
+                                <div class="status-badge status-approved">Approved</div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center p-2" style="background: rgba(139, 92, 246, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="employee-avatar" style="width: 40px; height: 40px; font-size: 1rem;">LW</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Lisa Wang</div>
+                                    <small class="text-secondary">UX Designer</small>
+                                </div>
+                                <div class="status-badge status-completed">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Settlement Tab -->
+            <div class="tab-pane fade" id="settlement" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Settlement Calculator -->
+                        <div class="glass-card">
+                            <h5 class="mb-4">
+                                <i class="fas fa-calculator me-2" style="color: var(--accent-green);"></i>
+                                Final Settlement Calculator - Ahmed Malik
+                            </h5>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-positive">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <span>Basic Salary (Remaining Days)</span>
+                                </div>
+                                <div class="settlement-amount amount-positive">+AED 8,500</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-positive">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <span>Unused Leave Balance (12 days)</span>
+                                </div>
+                                <div class="settlement-amount amount-positive">+AED 4,200</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-positive">
+                                        <i class="fas fa-gift"></i>
+                                    </div>
+                                    <span>End of Service Gratuity</span>
+                                </div>
+                                <div class="settlement-amount amount-positive">+AED 15,750</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-positive">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                    <span>Performance Bonus (Pro-rated)</span>
+                                </div>
+                                <div class="settlement-amount amount-positive">+AED 3,200</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-negative">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <span>Company Equipment (Not Returned)</span>
+                                </div>
+                                <div class="settlement-amount amount-negative">-AED 2,500</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-negative">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <span>Outstanding Advances</span>
+                                </div>
+                                <div class="settlement-amount amount-negative">-AED 1,200</div>
+                            </div>
+                            
+                            <div class="settlement-item">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-negative">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <span>Insurance Premium (Current Month)</span>
+                                </div>
+                                <div class="settlement-amount amount-negative">-AED 450</div>
+                            </div>
+                            
+                            <div class="settlement-item total">
+                                <div class="settlement-label">
+                                    <div class="settlement-icon icon-positive">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <span>Total Final Settlement</span>
+                                </div>
+                                <div class="settlement-amount amount-positive">AED 27,500</div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div class="d-flex gap-3">
+                                    <button class="btn-action btn-primary-action" onclick="generateSettlementReport()">
+                                        <i class="fas fa-file-pdf me-2"></i>Generate Report
+                                    </button>
+                                    <button class="btn-action btn-secondary-action" onclick="processPayment()">
+                                        <i class="fas fa-credit-card me-2"></i>Process Payment
+                                    </button>
+                                    <button class="btn-action btn-secondary-action" onclick="sendToBlockchain()">
+                                        <i class="fas fa-link me-2"></i>Blockchain Record
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- Settlement Summary -->
+                        <div class="glass-card mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-pie me-2" style="color: var(--accent-blue);"></i>
+                                Settlement Breakdown
+                            </h6>
+                            
+                            <div class="text-center mb-3">
+                                <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+                                    <svg width="120" height="120" style="transform: rotate(-90deg);">
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"></circle>
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-green)" stroke-width="8" 
+                                                stroke-dasharray="314" stroke-dashoffset="63" stroke-linecap="round"></circle>
+                                    </svg>
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: 700;">80%</div>
+                                </div>
+                                <div class="mt-2">Positive Components</div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Gross Amount</span>
+                                <span class="fw-bold text-success">AED 31,650</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Deductions</span>
+                                <span class="fw-bold text-danger">AED 4,150</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Net Settlement</span>
+                                <span class="fw-bold text-success">AED 27,500</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Payment Method</span>
+                                <span class="fw-bold">Bank Transfer</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Blockchain Record -->
+                        <div class="ai-insight">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i class="fas fa-link"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">Blockchain Security</div>
+                                    <div class="insight-description">Immutable settlement record</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-secondary">Transaction Hash:</small>
+                                <div class="font-monospace" style="font-size: 0.8rem; word-break: break-all;">0x7a8f9b2c...d4e5f6g7</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-secondary">Block Number:</small>
+                                <div class="fw-bold">#245,891</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-secondary">Timestamp:</small>
+                                <div>2024-01-15 14:30:25 UTC</div>
+                            </div>
+                            
+                            <div>
+                                <small class="text-secondary">Status:</small>
+                                <div class="status-badge status-completed">Confirmed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exit Interview Tab -->
+            <div class="tab-pane fade" id="feedback" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Exit Interview Form -->
+                        <div class="feedback-section">
+                            <h5 class="mb-4">
+                                <i class="fas fa-comments me-2" style="color: var(--accent-blue);"></i>
+                                Exit Interview - Ahmed Malik
+                            </h5>
+                            
+                            <form id="exitInterviewForm">
+                                <div class="feedback-section">
+                                    <h6 class="mb-3">Overall Experience</h6>
+                                    
+                                    <div class="rating-group">
+                                        <label>Job Satisfaction:</label>
+                                        <div class="rating-stars" data-rating="job-satisfaction">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rating-group">
+                                        <label>Work-Life Balance:</label>
+                                        <div class="rating-stars" data-rating="work-life-balance">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rating-group">
+                                        <label>Management Support:</label>
+                                        <div class="rating-stars" data-rating="management-support">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rating-group">
+                                        <label>Career Development:</label>
+                                        <div class="rating-stars" data-rating="career-development">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="rating-group">
+                                        <label>Team Collaboration:</label>
+                                        <div class="rating-stars" data-rating="team-collaboration">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="feedback-section">
+                                    <h6 class="mb-3">Detailed Feedback</h6>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">What did you enjoy most about working here?</label>
+                                        <textarea class="form-control" rows="3" placeholder="Share your positive experiences..."></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">What could we improve?</label>
+                                        <textarea class="form-control" rows="3" placeholder="Your suggestions for improvement..."></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Would you recommend this company to others?</label>
+                                        <select class="form-select">
+                                            <option value="">Select...</option>
+                                            <option value="definitely">Definitely Yes</option>
+                                            <option value="probably">Probably Yes</option>
+                                            <option value="neutral">Neutral</option>
+                                            <option value="probably-not">Probably Not</option>
+                                            <option value="definitely-not">Definitely Not</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Any additional comments?</label>
+                                        <textarea class="form-control" rows="4" placeholder="Any other feedback you'd like to share..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn-action btn-primary-action">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                                    </button>
+                                    <button type="button" class="btn-action btn-secondary-action" onclick="saveFeedbackDraft()">
+                                        <i class="fas fa-save me-2"></i>Save Draft
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- Feedback Analytics -->
+                        <div class="glass-card mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-bar me-2" style="color: var(--accent-green);"></i>
+                                Exit Feedback Trends
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Job Satisfaction</span>
+                                    <span class="fw-bold">3.2/5</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); width: 64%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Work-Life Balance</span>
+                                    <span class="fw-bold">2.8/5</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); width: 56%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Management Support</span>
+                                    <span class="fw-bold">3.7/5</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, var(--accent-orange), var(--accent-mint)); width: 74%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Career Development</span>
+                                    <span class="fw-bold">2.5/5</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Team Collaboration</span>
+                                    <span class="fw-bold">4.1/5</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, var(--accent-mint), var(--accent-green)); width: 82%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Feedback Insights -->
+                        <div class="ai-insight">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">AI Feedback Analysis</div>
+                                    <div class="insight-description">Key insights from exit interviews</div>
+                                </div>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-exclamation-triangle me-2" style="color: var(--accent-red);"></i>
+                                    <small>Career development is the top concern</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock me-2" style="color: var(--accent-orange);"></i>
+                                    <small>Work-life balance needs improvement</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-users me-2" style="color: var(--accent-green);"></i>
+                                    <small>Team collaboration is highly rated</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-lightbulb me-2" style="color: var(--accent-blue);"></i>
+                                    <small>Recommend mentorship programs</small>
+                                </li>
+                                <li>
+                                    <i class="fas fa-chart-line me-2" style="color: var(--primary-purple);"></i>
+                                    <small>Overall satisfaction trending down</small>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Star Rating System
+        document.querySelectorAll('.rating-stars').forEach(ratingGroup => {
+            const stars = ratingGroup.querySelectorAll('.star');
+            
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = index + 1;
+                    const ratingName = ratingGroup.dataset.rating;
+                    
+                    // Update visual state
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                    
+                    // Store rating value
+                    ratingGroup.dataset.value = rating;
+                    console.log(`${ratingName}: ${rating} stars`);
+                });
+                
+                star.addEventListener('mouseenter', () => {
+                    stars.forEach((s, i) => {
+                        if (i <= index) {
+                            s.style.color = '#FFD700';
+                        } else {
+                            s.style.color = 'var(--text-secondary)';
+                        }
+                    });
+                });
+            });
+            
+            ratingGroup.addEventListener('mouseleave', () => {
+                const currentRating = parseInt(ratingGroup.dataset.value) || 0;
+                stars.forEach((s, i) => {
+                    if (i < currentRating) {
+                        s.style.color = '#FFD700';
+                    } else {
+                        s.style.color = 'var(--text-secondary)';
+                    }
+                });
+            });
+        });
+        
+        // Resignation Form Functions
+        function scheduleRetentionMeeting(employeeId) {
+            showNotification('Retention meeting scheduled successfully!', 'success');
+            console.log('Scheduling retention meeting for:', employeeId);
+        }
+        
+        function viewEmployeeDetails(employeeId) {
+            showNotification('Opening employee details...', 'info');
+            console.log('Viewing details for:', employeeId);
+        }
+        
+        function sendAppreciation(employeeId) {
+            showNotification('Appreciation message sent!', 'success');
+            console.log('Sending appreciation to:', employeeId);
+        }
+        
+        function saveDraft() {
+            showNotification('Resignation draft saved successfully!', 'success');
+        }
+        
+        function generateSettlementReport() {
+            showNotification('Generating settlement report...', 'info');
+            setTimeout(() => {
+                showNotification('Settlement report generated and downloaded!', 'success');
+            }, 2000);
+        }
+        
+        function processPayment() {
+            showNotification('Processing final settlement payment...', 'info');
+            setTimeout(() => {
+                showNotification('Payment processed successfully!', 'success');
+            }, 3000);
+        }
+        
+        function sendToBlockchain() {
+            showNotification('Recording settlement on blockchain...', 'info');
+            setTimeout(() => {
+                showNotification('Blockchain record created successfully!', 'success');
+            }, 2500);
+        }
+        
+        function saveFeedbackDraft() {
+            showNotification('Exit interview draft saved!', 'success');
+        }
+        
+        // Form Submissions
+        document.getElementById('resignationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const resignationDate = document.getElementById('resignationDate').value;
+            const lastWorkingDay = document.getElementById('lastWorkingDay').value;
+            const reason = document.getElementById('resignationReason').value;
+            const confirmCheckbox = document.getElementById('confirmResignation').checked;
+            
+            if (!resignationDate || !lastWorkingDay || !reason || !confirmCheckbox) {
+                showNotification('Please fill all required fields and confirm your resignation.', 'error');
+                return;
+            }
+            
+            showNotification('Submitting resignation...', 'info');
+            
+            setTimeout(() => {
+                showNotification('Resignation submitted successfully! HR will review and contact you.', 'success');
+                // Reset form or redirect
+            }, 2000);
+        });
+        
+        document.getElementById('exitInterviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect all ratings
+            const ratings = {};
+            document.querySelectorAll('.rating-stars').forEach(ratingGroup => {
+                const ratingName = ratingGroup.dataset.rating;
+                const ratingValue = ratingGroup.dataset.value || 0;
+                ratings[ratingName] = ratingValue;
+            });
+            
+            console.log('Exit interview ratings:', ratings);
+            
+            showNotification('Submitting exit interview...', 'info');
+            
+            setTimeout(() => {
+                showNotification('Exit interview submitted successfully! Thank you for your feedback.', 'success');
+            }, 2000);
+        });
+        
+        // Auto-calculate last working day based on resignation date and notice period
+        document.getElementById('resignationDate').addEventListener('change', function() {
+            const resignationDate = new Date(this.value);
+            const noticePeriod = parseInt(document.getElementById('noticePeriod').value);
+            
+            if (resignationDate && noticePeriod) {
+                const lastWorkingDay = new Date(resignationDate);
+                lastWorkingDay.setDate(lastWorkingDay.getDate() + noticePeriod);
+                
+                document.getElementById('lastWorkingDay').value = lastWorkingDay.toISOString().split('T')[0];
+            }
+        });
+        
+        document.getElementById('noticePeriod').addEventListener('change', function() {
+            const resignationDate = document.getElementById('resignationDate').value;
+            if (resignationDate) {
+                document.getElementById('resignationDate').dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Initialize tooltips and other Bootstrap components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates
+            const today = new Date();
+            document.getElementById('resignationDate').value = today.toISOString().split('T')[0];
+            
+            // Trigger auto-calculation
+            document.getElementById('resignationDate').dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>

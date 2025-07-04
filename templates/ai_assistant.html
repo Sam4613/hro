@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sam – Smart HR Assistant - HR Suite by SnashWorld</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --accent-mint: #10B981;
+            --accent-blue: #3B82F6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-green: #22C55E;
+            --dark-bg: #0F0F23;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a3a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            gap: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: white;
+            border-color: var(--primary-purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--accent-blue) 100%);
+            padding: 1rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .ai-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--accent-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--card-bg);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-mint));
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-mint));
+            color: white;
+        }
+
+        .message-content {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 15px;
+            max-width: 70%;
+            position: relative;
+            border: 1px solid var(--glass-border);
+        }
+
+        .message.ai .message-content {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .message.user .message-content {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-mint);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Chat Input */
+        .chat-input {
+            background: var(--card-bg);
+            border-top: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .chat-input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            color: var(--text-primary);
+            padding: 1rem 4rem 1rem 1.5rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .chat-input-field:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .input-actions {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn {
+            background: var(--accent-mint);
+            color: white;
+        }
+
+        .send-btn {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-action {
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .quick-action:hover {
+            background: var(--accent-mint);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* AI Capabilities */
+        .capability-card {
+            text-align: center;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .capability-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .capability-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-mint));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Voice Recording */
+        .voice-recording {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .voice-wave {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--accent-mint);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            animation: voice-pulse 1s infinite;
+        }
+
+        @keyframes voice-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* RiSa Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .custom-notification {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            padding: 0;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .custom-notification.success {
+            border-left: 4px solid var(--accent-mint);
+        }
+
+        .custom-notification.error {
+            border-left: 4px solid #EF4444;
+        }
+
+        .custom-notification.warning {
+            border-left: 4px solid #F59E0B;
+        }
+
+        .custom-notification.info {
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px 10px;
+        }
+
+        .notification-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .notification-title i {
+            font-size: 1.1rem;
+        }
+
+        .success .notification-title i {
+            color: var(--accent-mint);
+        }
+
+        .error .notification-title i {
+            color: #EF4444;
+        }
+
+        .warning .notification-title i {
+            color: #F59E0B;
+        }
+
+        .info .notification-title i {
+            color: var(--accent-blue);
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .notification-message {
+            padding: 0 20px 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .notification-progress {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success .notification-progress {
+            background: var(--accent-mint);
+        }
+
+        .error .notification-progress {
+            background: #EF4444;
+        }
+
+        .warning .notification-progress {
+            background: #F59E0B;
+        }
+
+        .info .notification-progress {
+            background: var(--accent-blue);
+        }
+
+        @media (max-width: 768px) {
+            .notification-container {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+            
+            .custom-notification {
+                transform: translateY(-100%);
+            }
+            
+            .custom-notification.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                <i class="fas fa-brain me-2" style="color: var(--primary-purple);"></i>
+                HR Suite <span style="color: var(--accent-mint);">AI</span>
+            </a>
+            
+            <ul class="nav nav-tabs ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/attendance"><i class="fas fa-clock me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/employees"><i class="fas fa-users me-2"></i>Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/ai-assistant"><i class="fas fa-robot me-2"></i>AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rewards"><i class="fas fa-coins me-2"></i>Rewards</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Chat Interface -->
+            <div class="col-lg-8 mb-4">
+                <div class="glass-card p-0">
+                    <div class="chat-container">
+                        <!-- Chat Header -->
+                        <div class="chat-header">
+                            <div class="ai-avatar">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4 class="mb-1">Sam – Smart HR Assistant</h4>
+                            <p class="mb-0 opacity-75">Powered by SnashWorld</p>
+                        </div>
+                        
+                        <!-- Chat Messages -->
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <p>🤖 Hello! I'm Sam, your Smart HR Assistant from SnashWorld. Let's enhance your HR operations with AI-powered solutions! ⚡</p>
+                                    <p>I can help you with:</p>
+                                    <ul>
+                                        <li>📊 Generate reports and analytics</li>
+                                        <li>✅ Create and assign tasks</li>
+                                        <li>📋 Draft HR policies</li>
+                                        <li>🎖️ Manage rewards and tokens</li>
+                                        <li>📍 Track team locations</li>
+                                        <li>🎓 Recommend learning paths</li>
+                                        <li>🗣️ Voice commands and audio processing</li>
+                                    </ul>
+                                    <p>What would you like to explore today?</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator px-3" id="typingIndicator">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <span>Sam is thinking</span>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="chat-input">
+                            <div class="quick-actions">
+                                <span class="quick-action" onclick="sendQuickMessage('Show leave trends')">📊 Leave Trends</span>
+                                <span class="quick-action" onclick="sendQuickMessage('Draft warning letter')">📝 Draft Letter</span>
+                                <span class="quick-action" onclick="sendQuickMessage('Team performance summary')">⭐ Performance</span>
+                                <span class="quick-action" onclick="sendQuickMessage('Assign onboarding task')">👥 Onboarding</span>
+                                <span class="quick-action" onclick="sendQuickMessage('Generate attendance report')">📈 Reports</span>
+                            </div>
+                            
+                            <div class="input-group">
+                                <textarea class="form-control chat-input-field" id="messageInput" 
+                                         placeholder="Ask Sam anything about HR, team management, policies..."
+                                         rows="1"></textarea>
+                                <div class="input-actions">
+                                    <button class="action-btn voice-btn" onclick="toggleVoiceInput()" id="voiceBtn">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button class="action-btn send-btn" onclick="sendMessage()" id="sendBtn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Capabilities Sidebar -->
+            <div class="col-lg-4">
+                <!-- AI Capabilities -->
+                <div class="glass-card mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-magic me-2" style="color: var(--primary-purple);"></i>
+                        AI Capabilities
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="capability-card">
+                                <div class="capability-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h6>Analytics</h6>
+                                <small class="text-secondary">Smart insights & trends</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="capability-card">
+                                <div class="capability-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h6>Documents</h6>
+                                <small class="text-secondary">Auto-generate letters</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="capability-card">
+                                <div class="capability-icon">
+                                    <i class="fas fa-users-cog"></i>
+                                </div>
+                                <h6>Management</h6>
+                                <small class="text-secondary">Team optimization</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="capability-card">
+                                <div class="capability-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h6>Policies</h6>
+                                <small class="text-secondary">Smart policy assistant</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Actions -->
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-history me-2" style="color: var(--accent-blue);"></i>
+                        Recent AI Actions
+                    </h5>
+                    
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Generated Leave Policy</h6>
+                                    <small class="text-secondary">Updated company leave guidelines</small>
+                                </div>
+                                <small class="text-secondary">2h ago</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Performance Analysis</h6>
+                                    <small class="text-secondary">Q4 team performance report</small>
+                                </div>
+                                <small class="text-secondary">1d ago</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-0 px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Onboarding Assignment</h6>
+                                    <small class="text-secondary">Assigned tasks to new hire</small>
+                                </div>
+                                <small class="text-secondary">2d ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Recording Modal -->
+    <div class="voice-recording" id="voiceModal">
+        <div class="voice-wave">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <h5>Listening...</h5>
+        <p class="text-secondary">Speak your question to Sam</p>
+        <button class="btn btn-outline-light" onclick="stopVoiceInput()">
+            <i class="fas fa-stop me-2"></i>Stop Recording
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        
+        // Auto-resize textarea
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send message on Enter
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Send message function
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Send to AI API
+                const response = await fetch('/api/ai-query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
+                    },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                const data = await response.json();
+                
+                // Hide typing indicator
+                hideTypingIndicator();
+                
+                // Add AI response
+                addMessage(data.response || 'Sorry, I encountered an error. Please try again.', 'ai');
+                
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('🤖 Oops! Something went wrong. Let me try again...', 'ai');
+                console.error('AI Query Error:', error);
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(content, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${avatar}
+                </div>
+                <div class="message-content">
+                    <p class="mb-1">${content}</p>
+                    <small class="text-secondary d-block mt-2">${timestamp}</small>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Quick message function
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+        
+        // Typing indicator functions
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        // Voice input functions
+        function toggleVoiceInput() {
+            if (isRecording) {
+                stopVoiceInput();
+            } else {
+                startVoiceInput();
+            }
+        }
+        
+        function startVoiceInput() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = function() {
+                    isRecording = true;
+                    document.getElementById('voiceBtn').classList.add('recording');
+                    document.getElementById('voiceModal').style.display = 'block';
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('messageInput').value = transcript;
+                    stopVoiceInput();
+                    sendMessage();
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    stopVoiceInput();
+                };
+                
+                recognition.onend = function() {
+                    stopVoiceInput();
+                };
+                
+                recognition.start();
+            } else {
+                alert('Speech recognition not supported in this browser.');
+            }
+        }
+        
+        function stopVoiceInput() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+            document.getElementById('voiceModal').style.display = 'none';
+        }
+        
+        // Initialize chat with welcome message
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-focus on input
+            document.getElementById('messageInput').focus();
+        });
+     </script>
+ </body>
+ </html>

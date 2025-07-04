@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management - Sam AI HR Suite by SnashWorld</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --accent-mint: #10B981;
+            --accent-blue: #3B82F6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-green: #22C55E;
+            --dark-bg: #0F0F23;
+            --navy-bg: #1a1a2e;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --glow-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--navy-bg) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-shadow);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            gap: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--accent-mint);
+            border-color: var(--accent-mint);
+            color: white;
+        }
+
+        /* Payroll Stats Cards */
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glow-shadow);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: var(--accent-green);
+        }
+
+        .stat-change.negative {
+            color: var(--accent-red);
+        }
+
+        /* Payroll Table */
+        .payroll-table {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--glow-shadow);
+        }
+
+        .table {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-blue));
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .table tbody td {
+            border-color: var(--border-color);
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-mint));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .employee-details {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .employee-id {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .salary-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-processed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .status-failed {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.view {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .action-btn.view:hover {
+            background: var(--accent-blue);
+        }
+
+        .action-btn.download {
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .action-btn.download:hover {
+            background: var(--accent-green);
+        }
+
+        /* Blockchain Transaction Log */
+        .blockchain-log {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: rgba(139, 92, 246, 0.05);
+            transform: translateX(5px);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            margin-top: 0.25rem;
+        }
+
+        .transaction-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-mint);
+        }
+
+        .transaction-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Process Payroll Button */
+        .process-payroll-btn {
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-blue));
+            border: none;
+            border-radius: 15px;
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .process-payroll-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Filters */
+        .filter-section {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-section .form-control,
+        .filter-section .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 0.75rem;
+        }
+
+        .filter-section .form-control:focus,
+        .filter-section .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+            color: var(--text-primary);
+        }
+
+        .filter-section .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Tax Compliance Section */
+        .tax-compliance {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), var(--card-bg));
+            border: 1px solid var(--accent-orange);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .compliance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .compliance-item:last-child {
+            border-bottom: none;
+        }
+
+        .compliance-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .compliance-status.compliant {
+            color: var(--accent-green);
+        }
+
+        .compliance-status.warning {
+            color: var(--accent-orange);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .process-payroll-btn {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+            
+            .table-responsive {
+                border-radius: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                <i class="fas fa-brain me-2" style="color: var(--primary-purple);"></i>
+                HR Suite <span style="color: var(--accent-mint);">AI</span>
+            </a>
+            
+            <ul class="nav nav-tabs ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/attendance"><i class="fas fa-clock me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/employees"><i class="fas fa-users me-2"></i>Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ai-assistant"><i class="fas fa-robot me-2"></i>AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rewards"><i class="fas fa-coins me-2"></i>Rewards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/payroll"><i class="fas fa-money-bill-wave me-2"></i>Payroll</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>
+                    <i class="fas fa-money-bill-wave me-2" style="color: var(--accent-mint);"></i>
+                    Payroll Management
+                </h3>
+            </div>
+        </div>
+        
+        <!-- Payroll Stats -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--accent-mint);">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-value">$485,250</div>
+                    <div class="stat-label">Total Payroll</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+5.2% from last month
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--accent-blue);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">127</div>
+                    <div class="stat-label">Employees Paid</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+3 new hires
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--accent-orange);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Pending Approvals</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down me-1"></i>-8 from yesterday
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--accent-red);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Tax Compliance</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check me-1"></i>All requirements met
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row align-items-end">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label text-white">Pay Period</label>
+                    <select class="form-select">
+                        <option>January 2025</option>
+                        <option>December 2024</option>
+                        <option>November 2024</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label text-white">Department</label>
+                    <select class="form-select">
+                        <option value="">All Departments</option>
+                        <option>Engineering</option>
+                        <option>Product</option>
+                        <option>Marketing</option>
+                        <option>Sales</option>
+                        <option>HR</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label text-white">Status</label>
+                    <select class="form-select">
+                        <option value="">All Status</option>
+                        <option>Processed</option>
+                        <option>Pending</option>
+                        <option>Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label text-white">Search</label>
+                    <input type="text" class="form-control" placeholder="Search employees...">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Grid -->
+        <div class="row">
+            <!-- Payroll Table -->
+            <div class="col-lg-8 mb-4">
+                <div class="payroll-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Base Salary</th>
+                                    <th>Bonuses</th>
+                                    <th>Deductions</th>
+                                    <th>Net Pay</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">FR</div>
+                                            <div class="employee-details">
+                                                <div class="employee-name">Fatima Rizwan</div>
+                                                <div class="employee-id">EMP1001</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="salary-amount">$8,500</td>
+                                    <td class="text-success">+$500</td>
+                                    <td class="text-warning">-$850</td>
+                                    <td class="salary-amount text-success">$8,150</td>
+                                    <td><span class="status-badge status-processed">Processed</span></td>
+                                    <td>
+                                        <button class="action-btn view" onclick="viewPayslip('EMP1001')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn download" onclick="downloadPayslip('EMP1001')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">AH</div>
+                                            <div class="employee-details">
+                                                <div class="employee-name">Ahmed Hassan</div>
+                                                <div class="employee-id">EMP1002</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="salary-amount">$9,200</td>
+                                    <td class="text-success">+$750</td>
+                                    <td class="text-warning">-$920</td>
+                                    <td class="salary-amount text-success">$9,030</td>
+                                    <td><span class="status-badge status-processed">Processed</span></td>
+                                    <td>
+                                        <button class="action-btn view" onclick="viewPayslip('EMP1002')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn download" onclick="downloadPayslip('EMP1002')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">SK</div>
+                                            <div class="employee-details">
+                                                <div class="employee-name">Sarah Khan</div>
+                                                <div class="employee-id">EMP1003</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="salary-amount">$7,800</td>
+                                    <td class="text-success">+$300</td>
+                                    <td class="text-warning">-$780</td>
+                                    <td class="salary-amount text-success">$7,320</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="action-btn view" onclick="viewPayslip('EMP1003')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn" onclick="processPayment('EMP1003')">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">RP</div>
+                                            <div class="employee-details">
+                                                <div class="employee-name">Raj Patel</div>
+                                                <div class="employee-id">EMP1004</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="salary-amount">$8,000</td>
+                                    <td class="text-success">+$400</td>
+                                    <td class="text-warning">-$800</td>
+                                    <td class="salary-amount text-success">$7,600</td>
+                                    <td><span class="status-badge status-processed">Processed</span></td>
+                                    <td>
+                                        <button class="action-btn view" onclick="viewPayslip('EMP1004')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn download" onclick="downloadPayslip('EMP1004')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">MS</div>
+                                            <div class="employee-details">
+                                                <div class="employee-name">Maya Singh</div>
+                                                <div class="employee-id">EMP1005</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="salary-amount">$6,500</td>
+                                    <td class="text-success">+$200</td>
+                                    <td class="text-warning">-$650</td>
+                                    <td class="salary-amount text-success">$6,050</td>
+                                    <td><span class="status-badge status-failed">Failed</span></td>
+                                    <td>
+                                        <button class="action-btn view" onclick="viewPayslip('EMP1005')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn" onclick="retryPayment('EMP1005')">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Tax Compliance -->
+                <div class="tax-compliance mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-shield-alt me-2" style="color: var(--accent-orange);"></i>
+                        Tax Compliance
+                    </h5>
+                    
+                    <div class="compliance-item">
+                        <span>Federal Tax Withholding</span>
+                        <div class="compliance-status compliant">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Compliant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-item">
+                        <span>State Tax Requirements</span>
+                        <div class="compliance-status compliant">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Compliant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-item">
+                        <span>Social Security</span>
+                        <div class="compliance-status compliant">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Compliant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-item">
+                        <span>Medicare Contributions</span>
+                        <div class="compliance-status compliant">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Compliant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-item">
+                        <span>Quarterly Filing</span>
+                        <div class="compliance-status warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Due Soon</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blockchain Transaction Log -->
+                <div class="blockchain-log">
+                    <h5 class="mb-3">
+                        <i class="fas fa-link me-2" style="color: var(--accent-blue);"></i>
+                        Blockchain Transactions
+                    </h5>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="fw-bold">Salary Payment - Fatima Rizwan</div>
+                            <div class="transaction-hash">0x7a8f...9c2e</div>
+                            <div class="transaction-time">2 minutes ago</div>
+                        </div>
+                        <div class="transaction-amount">$8,150</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="fw-bold">Bonus Payment - Ahmed Hassan</div>
+                            <div class="transaction-hash">0x3b1d...7f4a</div>
+                            <div class="transaction-time">15 minutes ago</div>
+                        </div>
+                        <div class="transaction-amount">$750</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="fw-bold">Tax Deduction - Raj Patel</div>
+                            <div class="transaction-hash">0x9e5c...2a8b</div>
+                            <div class="transaction-time">1 hour ago</div>
+                        </div>
+                        <div class="transaction-amount">-$800</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="fw-bold">401k Contribution - Sarah Khan</div>
+                            <div class="transaction-hash">0x4c7e...6d9f</div>
+                            <div class="transaction-time">2 hours ago</div>
+                        </div>
+                        <div class="transaction-amount">-$390</div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-primary btn-sm" onclick="viewBlockchainExplorer()">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            View Full Blockchain
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Process Payroll Button -->
+    <button class="process-payroll-btn" onclick="processPayroll()">
+        <i class="fas fa-play me-2"></i>Process Payroll
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // View Payslip
+        function viewPayslip(employeeId) {
+            // Create modal for payslip view
+            const modalHTML = `
+                <div class="modal fade" id="payslipModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px;">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title text-white">
+                                    <i class="fas fa-receipt me-2"></i>
+                                    Payslip - ${employeeId}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="payslip-content">
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <h6 class="text-white">Employee Information</h6>
+                                            <p class="text-secondary mb-1">Name: Fatima Rizwan</p>
+                                            <p class="text-secondary mb-1">ID: ${employeeId}</p>
+                                            <p class="text-secondary mb-1">Department: Product</p>
+                                            <p class="text-secondary mb-1">Position: Product Manager</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <h6 class="text-white">Pay Period</h6>
+                                            <p class="text-secondary mb-1">Period: January 2025</p>
+                                            <p class="text-secondary mb-1">Pay Date: Jan 31, 2025</p>
+                                            <p class="text-secondary mb-1">Days Worked: 22</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h6 class="text-white">Earnings & Deductions</h6>
+                                            <table class="table table-sm text-white">
+                                                <tr>
+                                                    <td>Base Salary</td>
+                                                    <td class="text-end">$8,500.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Performance Bonus</td>
+                                                    <td class="text-end text-success">+$500.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Federal Tax</td>
+                                                    <td class="text-end text-warning">-$425.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>State Tax</td>
+                                                    <td class="text-end text-warning">-$255.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Social Security</td>
+                                                    <td class="text-end text-warning">-$102.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Medicare</td>
+                                                    <td class="text-end text-warning">-$68.00</td>
+                                                </tr>
+                                                <tr class="border-top">
+                                                    <td><strong>Net Pay</strong></td>
+                                                    <td class="text-end"><strong class="text-success">$8,150.00</strong></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <h6 class="text-white">Blockchain Verification</h6>
+                                            <p class="text-secondary mb-1">Transaction Hash: <code>0x7a8f9c2e4d1b6f3a8e5c9d2f7b4a1e6c3f8d5a2b9e7c4f1a6d3b8e5c2f9a7d4b1e</code></p>
+                                            <p class="text-secondary mb-1">Block Number: #2,847,392</p>
+                                            <p class="text-secondary mb-1">Timestamp: ${new Date().toISOString()}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="downloadPayslip('${employeeId}')">
+                                    <i class="fas fa-download me-2"></i>Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('payslipModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('payslipModal'));
+            modal.show();
+        }
+        
+        // Download Payslip
+        function downloadPayslip(employeeId) {
+            // Simulate PDF download
+            showNotification(`📄 Downloading payslip for ${employeeId}...`, 'info');
+            
+            // Simulate download delay
+            setTimeout(() => {
+                showNotification(`✅ Payslip downloaded successfully!`, 'success');
+            }, 2000);
+        }
+        
+        // Process Individual Payment
+        function processPayment(employeeId) {
+            showNotification(`⏳ Processing payment for ${employeeId}...`, 'info');
+            
+            // Simulate processing
+            setTimeout(() => {
+                // Update status in table
+                const row = document.querySelector(`[onclick="processPayment('${employeeId}')"]`).closest('tr');
+                const statusBadge = row.querySelector('.status-badge');
+                statusBadge.className = 'status-badge status-processed';
+                statusBadge.textContent = 'Processed';
+                
+                // Update action buttons
+                const actionsCell = row.querySelector('td:last-child');
+                actionsCell.innerHTML = `
+                    <button class="action-btn view" onclick="viewPayslip('${employeeId}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn download" onclick="downloadPayslip('${employeeId}')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                `;
+                
+                showNotification(`✅ Payment processed successfully for ${employeeId}!`, 'success');
+                
+                // Add to blockchain log
+                addBlockchainTransaction(`Salary Payment - ${employeeId}`, '$7,320');
+            }, 3000);
+        }
+        
+        // Retry Failed Payment
+        function retryPayment(employeeId) {
+            showNotification(`🔄 Retrying payment for ${employeeId}...`, 'info');
+            
+            setTimeout(() => {
+                processPayment(employeeId);
+            }, 1000);
+        }
+        
+        // Process All Payroll
+        function processPayroll() {
+            const pendingCount = document.querySelectorAll('.status-pending').length;
+            const failedCount = document.querySelectorAll('.status-failed').length;
+            const totalToProcess = pendingCount + failedCount;
+            
+            if (totalToProcess === 0) {
+                showNotification('✅ All payments are already processed!', 'info');
+                return;
+            }
+            
+            showNotification(`⏳ Processing ${totalToProcess} payments...`, 'info');
+            
+            // Simulate batch processing
+            let processed = 0;
+            const interval = setInterval(() => {
+                processed++;
+                
+                // Update progress
+                showNotification(`⏳ Processing payment ${processed}/${totalToProcess}...`, 'info');
+                
+                if (processed >= totalToProcess) {
+                    clearInterval(interval);
+                    showNotification(`🎉 All ${totalToProcess} payments processed successfully!`, 'success');
+                    
+                    // Update all pending/failed to processed
+                    document.querySelectorAll('.status-pending, .status-failed').forEach(badge => {
+                        badge.className = 'status-badge status-processed';
+                        badge.textContent = 'Processed';
+                    });
+                    
+                    // Update stats
+                    updatePayrollStats();
+                }
+            }, 2000);
+        }
+        
+        // Add Blockchain Transaction
+        function addBlockchainTransaction(description, amount) {
+            const transactionLog = document.querySelector('.blockchain-log');
+            const newTransaction = document.createElement('div');
+            newTransaction.className = 'transaction-item';
+            newTransaction.innerHTML = `
+                <div class="transaction-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="transaction-details">
+                    <div class="fw-bold">${description}</div>
+                    <div class="transaction-hash">0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 4)}</div>
+                    <div class="transaction-time">Just now</div>
+                </div>
+                <div class="transaction-amount">${amount}</div>
+            `;
+            
+            // Insert at the top
+            const firstTransaction = transactionLog.querySelector('.transaction-item');
+            if (firstTransaction) {
+                transactionLog.insertBefore(newTransaction, firstTransaction);
+            }
+            
+            // Remove last transaction if more than 4
+            const transactions = transactionLog.querySelectorAll('.transaction-item');
+            if (transactions.length > 4) {
+                transactions[transactions.length - 1].remove();
+            }
+        }
+        
+        // Update Payroll Stats
+        function updatePayrollStats() {
+            // Update pending approvals count
+            const pendingCount = document.querySelectorAll('.status-pending').length;
+            const pendingStatValue = document.querySelector('.stat-card:nth-child(3) .stat-value');
+            if (pendingStatValue) {
+                pendingStatValue.textContent = pendingCount;
+            }
+        }
+        
+        // View Blockchain Explorer
+        function viewBlockchainExplorer() {
+            showNotification('🔗 Opening SnashChain Explorer...', 'info');
+            // In a real app, this would open the blockchain explorer
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                background: var(--card-bg);
+                border: 1px solid var(--glass-border);
+                color: var(--text-primary);
+                backdrop-filter: blur(20px);
+                border-radius: 15px;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Filter functionality
+        document.querySelectorAll('.filter-section select, .filter-section input').forEach(element => {
+            element.addEventListener('change', function() {
+                // In a real app, this would filter the table data
+                showNotification('🔍 Filters applied', 'info');
+            });
+        });
+        
+        // Real-time updates simulation
+        setInterval(() => {
+            const randomUpdate = Math.random();
+            
+            if (randomUpdate < 0.05) { // 5% chance
+                // Simulate new payment processing
+                const employees = ['John Doe', 'Jane Smith', 'Mike Johnson'];
+                const randomEmployee = employees[Math.floor(Math.random() * employees.length)];
+                const randomAmount = '$' + (Math.random() * 5000 + 3000).toFixed(0);
+                
+                addBlockchainTransaction(`Salary Payment - ${randomEmployee}`, randomAmount);
+                showNotification(`💰 New payment processed: ${randomEmployee}`, 'success');
+            }
+        }, 10000); // Check every 10 seconds
+    </script>
+</body>
+</html>
