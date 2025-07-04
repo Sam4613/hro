@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile - {{ employee.name if employee else 'Employee' }} | HR Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark Theme Variables */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --card-bg: #1e1e1e;
+            --border-color: #334155;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Accent Colors */
+            --accent-mint: #32f5c8;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-gold: #fbbf24;
+            --accent-coral: #ff6b6b;
+            
+            /* Status Colors */
+            --status-success: #10b981;
+            --status-warning: #f59e0b;
+            --status-danger: #ef4444;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #32f5c8 0%, #00d4ff 100%);
+            --gradient-card: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            color: var(--accent-mint) !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-mint) !important;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 2rem 0;
+            min-height: calc(100vh - 76px);
+        }
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(50, 245, 200, 0.15);
+            border-color: var(--accent-mint);
+        }
+
+        /* Employee Profile Card */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-mint);
+            box-shadow: 0 0 20px rgba(50, 245, 200, 0.3);
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-role {
+            font-size: 1.1rem;
+            color: var(--accent-mint);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .contact-item i {
+            color: var(--accent-cyan);
+            width: 16px;
+        }
+
+        /* Controls */
+        .profile-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time-selector {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .time-selector:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+            box-shadow: 0 0 0 2px rgba(50, 245, 200, 0.2);
+        }
+
+        .download-btn {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(50, 245, 200, 0.4);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(50, 245, 200, 0.2);
+            border-color: var(--accent-mint);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-mint);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Attendance Section */
+        .attendance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .view-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: var(--accent-mint);
+            color: #000;
+        }
+
+        .filter-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-mint);
+            color: var(--accent-mint);
+        }
+
+        /* Attendance Grid */
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .attendance-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .attendance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        .attendance-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .status-chip {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status-chip.on-time {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--status-success);
+            border: 1px solid var(--status-success);
+        }
+
+        .status-chip.late {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--status-warning);
+            border: 1px solid var(--status-warning);
+        }
+
+        .status-chip.absent {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--status-danger);
+            border: 1px solid var(--status-danger);
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .time-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .time-item i {
+            color: var(--accent-cyan);
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .page-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: var(--accent-mint);
+            color: #000;
+            border-color: var(--accent-mint);
+        }
+
+        /* Pro Upgrade Box */
+        .pro-upgrade {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: var(--gradient-card);
+            border: 1px solid var(--accent-purple);
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
+        }
+
+        .pro-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pro-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .pro-btn {
+            background: var(--accent-purple);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .pro-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .contact-info {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .attendance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pro-upgrade {
+                position: relative;
+                left: auto;
+                bottom: auto;
+                margin: 2rem auto;
+                max-width: 100%;
+            }
+
+            .attendance-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-controls {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 1rem 0;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-cube me-2"></i>HR Suite
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/employees"><i class="fas fa-users me-1"></i>Employees</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/attendance"><i class="fas fa-clock me-1"></i>Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ai-assistant"><i class="fas fa-robot me-1"></i>Ask Sam</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container">
+            <!-- Employee Profile Card -->
+            <div class="glass-card mb-4">
+                <div class="profile-header">
+                    <img src="{{ employee.avatar if employee and employee.avatar else 'https://ui-avatars.com/api/?name=' + (employee.name if employee else 'John+Doe') + '&background=32f5c8&color=000&size=96' }}" 
+                         alt="{{ employee.name if employee else 'Employee' }}" 
+                         class="profile-avatar">
+                    
+                    <div class="profile-info">
+                        <h1 class="profile-name">{{ employee.name if employee else 'John Doe' }}</h1>
+                        <div class="profile-role">{{ employee.role if employee else 'Senior Software Developer' }}</div>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ employee.phone if employee else '+1 (555) 123-4567' }}</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ employee.email if employee else 'john.doe@company.com' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-controls">
+                        <select class="time-selector" id="timeRange">
+                            <option value="month">This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                            <option value="all">All Time</option>
+                        </select>
+                        <button class="download-btn" onclick="downloadEmployeeInfo()">
+                            <i class="fas fa-download"></i>
+                            Download Info
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">↩️</div>
+                        <div class="stat-value">{{ employee.total_attendance if employee else '309' }}</div>
+                        <div class="stat-label">Total Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-value">{{ employee.avg_checkin if employee else '08:46 AM' }}</div>
+                        <div class="stat-label">Avg Check-in Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⌛</div>
+                        <div class="stat-value">{{ employee.avg_checkout if employee else '17:04 PM' }}</div>
+                        <div class="stat-label">Avg Check-out Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏅</div>
+                        <div class="stat-value">{{ employee.role_highlight if employee else 'Role Model' }}</div>
+                        <div class="stat-label">Role Highlight</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance History Section -->
+            <div class="glass-card">
+                <div class="attendance-header">
+                    <h2 class="section-title">📊 Attendance History</h2>
+                    <div class="view-controls">
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn" data-view="list">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                        <button class="filter-btn">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                        <button class="filter-btn">
+                            <i class="fas fa-sort me-1"></i>Sort
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Attendance Grid -->
+                <div class="attendance-grid" id="attendanceGrid">
+                    <!-- Sample attendance cards -->
+                    <div class="attendance-card" style="animation-delay: 0.1s">
+                        <div class="attendance-date">January 15, 2025</div>
+                        <span class="status-chip on-time">On Time</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>08:45 AM</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>17:15 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-card" style="animation-delay: 0.2s">
+                        <div class="attendance-date">January 14, 2025</div>
+                        <span class="status-chip late">Late</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>09:15 AM</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>17:30 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-card" style="animation-delay: 0.3s">
+                        <div class="attendance-date">January 13, 2025</div>
+                        <span class="status-chip on-time">On Time</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>08:30 AM</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>17:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-card" style="animation-delay: 0.4s">
+                        <div class="attendance-date">January 12, 2025</div>
+                        <span class="status-chip absent">Absent</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-times-circle"></i>
+                                <span>No Check-in</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-times-circle"></i>
+                                <span>No Check-out</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-card" style="animation-delay: 0.5s">
+                        <div class="attendance-date">January 11, 2025</div>
+                        <span class="status-chip on-time">On Time</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>08:50 AM</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>17:10 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-card" style="animation-delay: 0.6s">
+                        <div class="attendance-date">January 10, 2025</div>
+                        <span class="status-chip on-time">On Time</span>
+                        <div class="time-info">
+                            <div class="time-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>08:40 AM</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>17:05 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination">
+                        <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">4</button>
+                        <button class="page-btn">5</button>
+                        <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pro Upgrade Box -->
+    <div class="pro-upgrade">
+        <div class="pro-title">💎 Get Results So Far?</div>
+        <div class="pro-description">Unlock advanced analytics, custom reports, and AI-powered insights.</div>
+        <button class="pro-btn">Upgrade to Pro</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // View Toggle Functionality
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const view = this.dataset.view;
+                const grid = document.getElementById('attendanceGrid');
+                
+                if (view === 'list') {
+                    grid.style.gridTemplateColumns = '1fr';
+                    grid.querySelectorAll('.attendance-card').forEach(card => {
+                        card.style.display = 'flex';
+                        card.style.alignItems = 'center';
+                        card.style.gap = '2rem';
+                    });
+                } else {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+                    grid.querySelectorAll('.attendance-card').forEach(card => {
+                        card.style.display = 'block';
+                    });
+                }
+            });
+        });
+
+        // Pagination
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!this.innerHTML.includes('chevron')) {
+                    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Download Employee Info
+        function downloadEmployeeInfo() {
+            const employeeName = '{{ employee.name if employee else "John Doe" }}';
+            const timeRange = document.getElementById('timeRange').value;
+            
+            // Show notification
+            alert(`📊 Generating ${employeeName}'s report for ${timeRange}...\nReport will be ready for download shortly.`);
+            
+            // Simulate download
+            setTimeout(() => {
+                alert(`✅ Report Ready!\n${employeeName}'s attendance report has been generated.`);
+            }, 2000);
+        }
+
+        // Time Range Change
+        document.getElementById('timeRange').addEventListener('change', function() {
+            const range = this.value;
+            console.log(`Loading data for: ${range}`);
+            // Here you would typically make an AJAX call to load new data
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stagger card animations
+            const cards = document.querySelectorAll('.attendance-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Add hover effects to stat cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

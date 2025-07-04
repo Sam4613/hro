@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment & Onboarding - HR Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --accent-mint: #10B981;
+            --accent-blue: #3B82F6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-green: #22C55E;
+            --dark-bg: #0F0F23;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a3a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+        }
+
+        .nav-tabs {
+            border: none;
+            gap: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--accent-mint);
+            border-color: var(--accent-mint);
+            color: white;
+        }
+
+        /* Job Cards */
+        .job-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .job-card:hover::before {
+            left: 100%;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.15);
+            border-color: var(--primary-purple);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-department {
+            color: var(--accent-mint);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .job-location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .job-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-draft {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .status-closed {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .job-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .job-description {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .job-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .skill-tag {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--primary-purple);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid var(--primary-purple);
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-job {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-job {
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-blue));
+            color: white;
+        }
+
+        .btn-primary-job:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary-job {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary-job:hover {
+            background: var(--primary-purple);
+            color: white;
+            border-color: var(--primary-purple);
+        }
+
+        /* Candidate Cards */
+        .candidate-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.1);
+            border-color: var(--accent-mint);
+        }
+
+        .candidate-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .candidate-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .candidate-info {
+            flex: 1;
+        }
+
+        .candidate-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .candidate-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-location {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .match-score {
+            text-align: center;
+            margin-left: 1rem;
+        }
+
+        .score-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-high {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 2px solid var(--accent-green);
+        }
+
+        .score-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 2px solid var(--accent-orange);
+        }
+
+        .score-low {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .candidate-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .candidate-skill {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            border: 1px solid var(--accent-blue);
+        }
+
+        .candidate-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Onboarding Checklist */
+        .onboarding-item {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .onboarding-item:hover {
+            border-color: var(--accent-mint);
+        }
+
+        .onboarding-item.completed {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--accent-green);
+        }
+
+        .onboarding-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .onboarding-title {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .onboarding-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .icon-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .icon-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .onboarding-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .onboarding-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .onboarding-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Resume Upload */
+        .resume-upload {
+            border: 2px dashed var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .resume-upload:hover {
+            border-color: var(--primary-purple);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .resume-upload.dragover {
+            border-color: var(--accent-mint);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* AI Analysis */
+        .ai-analysis {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), var(--card-bg));
+            border: 1px solid var(--primary-purple);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-mint));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .analysis-content {
+            flex: 1;
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .analysis-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-blue));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .candidate-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .candidate-avatar {
+                margin: 0 auto 1rem;
+            }
+            
+            .match-score {
+                margin: 1rem auto 0;
+            }
+            
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .job-status {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                <i class="fas fa-brain me-2" style="color: var(--primary-purple);"></i>
+                HR Suite <span style="color: var(--accent-mint);">AI</span>
+            </a>
+            
+            <ul class="nav nav-tabs ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/attendance"><i class="fas fa-clock me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/employees"><i class="fas fa-users me-2"></i>Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ai-assistant"><i class="fas fa-robot me-2"></i>AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rewards"><i class="fas fa-coins me-2"></i>Rewards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/payroll"><i class="fas fa-money-bill-wave me-2"></i>Payroll</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/leave"><i class="fas fa-calendar-alt me-2"></i>Leave</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/learning"><i class="fas fa-graduation-cap me-2"></i>Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/recruitment"><i class="fas fa-user-plus me-2"></i>Recruitment</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>
+                    <i class="fas fa-user-plus me-2" style="color: var(--accent-mint);"></i>
+                    Recruitment & Onboarding
+                </h3>
+            </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <ul class="nav nav-pills" id="recruitmentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="jobs-tab" data-bs-toggle="pill" data-bs-target="#jobs" type="button" role="tab">
+                            <i class="fas fa-briefcase me-2"></i>Job Board
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="candidates-tab" data-bs-toggle="pill" data-bs-target="#candidates" type="button" role="tab">
+                            <i class="fas fa-users me-2"></i>Candidates
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="onboarding-tab" data-bs-toggle="pill" data-bs-target="#onboarding" type="button" role="tab">
+                            <i class="fas fa-clipboard-check me-2"></i>Onboarding
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="recruitmentTabContent">
+            <!-- Job Board Tab -->
+            <div class="tab-pane fade show active" id="jobs" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Active Jobs -->
+                        <div class="glass-card mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-briefcase me-2" style="color: var(--accent-green);"></i>
+                                Active Job Postings
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="job-card" onclick="viewJob('senior-frontend')">
+                                        <div class="job-header">
+                                            <div>
+                                                <div class="job-title">Senior Frontend Developer</div>
+                                                <div class="job-department">Engineering</div>
+                                                <div class="job-location"><i class="fas fa-map-marker-alt me-1"></i>Dubai, UAE / Remote</div>
+                                            </div>
+                                            <div class="job-status status-active">Active</div>
+                                        </div>
+                                        
+                                        <div class="job-meta">
+                                            <div class="job-stats">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-users"></i>
+                                                    <span>24 Applicants</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span>156 Views</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-calendar"></i>
+                                                    <span>Posted 3 days ago</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="job-description">
+                                            We're looking for a passionate Senior Frontend Developer to join our growing team. You'll be responsible for building modern, responsive web applications using React and TypeScript.
+                                        </div>
+                                        
+                                        <div class="job-skills">
+                                            <span class="skill-tag">React</span>
+                                            <span class="skill-tag">TypeScript</span>
+                                            <span class="skill-tag">Next.js</span>
+                                            <span class="skill-tag">Tailwind CSS</span>
+                                            <span class="skill-tag">GraphQL</span>
+                                        </div>
+                                        
+                                        <div class="job-actions">
+                                            <button class="btn-job btn-primary-job" onclick="viewCandidates('senior-frontend')">
+                                                <i class="fas fa-users me-1"></i>View Candidates
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="editJob('senior-frontend')">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="job-card" onclick="viewJob('product-manager')">
+                                        <div class="job-header">
+                                            <div>
+                                                <div class="job-title">Product Manager</div>
+                                                <div class="job-department">Product</div>
+                                                <div class="job-location"><i class="fas fa-map-marker-alt me-1"></i>Abu Dhabi, UAE</div>
+                                            </div>
+                                            <div class="job-status status-active">Active</div>
+                                        </div>
+                                        
+                                        <div class="job-meta">
+                                            <div class="job-stats">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-users"></i>
+                                                    <span>18 Applicants</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span>89 Views</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-calendar"></i>
+                                                    <span>Posted 1 week ago</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="job-description">
+                                            Join our product team to drive innovation and strategy. You'll work closely with engineering and design teams to deliver exceptional user experiences.
+                                        </div>
+                                        
+                                        <div class="job-skills">
+                                            <span class="skill-tag">Product Strategy</span>
+                                            <span class="skill-tag">Agile</span>
+                                            <span class="skill-tag">Analytics</span>
+                                            <span class="skill-tag">User Research</span>
+                                            <span class="skill-tag">Roadmapping</span>
+                                        </div>
+                                        
+                                        <div class="job-actions">
+                                            <button class="btn-job btn-primary-job" onclick="viewCandidates('product-manager')">
+                                                <i class="fas fa-users me-1"></i>View Candidates
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="editJob('product-manager')">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="job-card" onclick="viewJob('data-scientist')">
+                                        <div class="job-header">
+                                            <div>
+                                                <div class="job-title">Data Scientist</div>
+                                                <div class="job-department">Analytics</div>
+                                                <div class="job-location"><i class="fas fa-map-marker-alt me-1"></i>Dubai, UAE</div>
+                                            </div>
+                                            <div class="job-status status-draft">Draft</div>
+                                        </div>
+                                        
+                                        <div class="job-meta">
+                                            <div class="job-stats">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-users"></i>
+                                                    <span>0 Applicants</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span>0 Views</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-calendar"></i>
+                                                    <span>Created today</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="job-description">
+                                            We're seeking a talented Data Scientist to help us unlock insights from our data and drive data-driven decision making across the organization.
+                                        </div>
+                                        
+                                        <div class="job-skills">
+                                            <span class="skill-tag">Python</span>
+                                            <span class="skill-tag">Machine Learning</span>
+                                            <span class="skill-tag">SQL</span>
+                                            <span class="skill-tag">Statistics</span>
+                                            <span class="skill-tag">Tableau</span>
+                                        </div>
+                                        
+                                        <div class="job-actions">
+                                            <button class="btn-job btn-primary-job" onclick="publishJob('data-scientist')">
+                                                <i class="fas fa-rocket me-1"></i>Publish
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="editJob('data-scientist')">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- Job Statistics -->
+                        <div class="glass-card mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-pie me-2" style="color: var(--accent-blue);"></i>
+                                Recruitment Statistics
+                            </h6>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Active Jobs</span>
+                                <span class="fw-bold text-success">12</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Total Applicants</span>
+                                <span class="fw-bold">156</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Interviews Scheduled</span>
+                                <span class="fw-bold text-warning">8</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Offers Extended</span>
+                                <span class="fw-bold text-info">3</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Avg. Time to Hire</span>
+                                <span class="fw-bold">18 days</span>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Insights -->
+                        <div class="ai-analysis">
+                            <div class="analysis-header">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="analysis-content">
+                                    <div class="analysis-title">AI Recruitment Insights</div>
+                                    <div class="analysis-description">Smart recommendations for better hiring</div>
+                                </div>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-lightbulb me-2" style="color: var(--accent-orange);"></i>
+                                    <small>Frontend Developer role has 3x more applicants than average</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock me-2" style="color: var(--accent-blue);"></i>
+                                    <small>Consider scheduling interviews for Product Manager candidates this week</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-target me-2" style="color: var(--accent-mint);"></i>
+                                    <small>Recommended salary range for Data Scientist: AED 15,000-20,000</small>
+                                </li>
+                                <li>
+                                    <i class="fas fa-users me-2" style="color: var(--primary-purple);"></i>
+                                    <small>Top candidate match score: 94% for Frontend Developer role</small>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Candidates Tab -->
+            <div class="tab-pane fade" id="candidates" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Resume Upload -->
+                        <div class="glass-card mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-file-upload me-2" style="color: var(--accent-blue);"></i>
+                                Resume Parser
+                            </h5>
+                            
+                            <div class="resume-upload" onclick="triggerFileUpload()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text">Drop resume files here or click to upload</div>
+                                <div class="upload-subtext">Supports PDF, DOC, DOCX files up to 10MB</div>
+                                <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx" multiple style="display: none;" onchange="handleFileUpload(event)">
+                            </div>
+                        </div>
+                        
+                        <!-- Top Candidates -->
+                        <div class="glass-card">
+                            <h5 class="mb-3">
+                                <i class="fas fa-star me-2" style="color: #FFD700;"></i>
+                                Top Candidates
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-lg-6 mb-3">
+                                    <div class="candidate-card" onclick="viewCandidate('sarah-johnson')">
+                                        <div class="candidate-header">
+                                            <div class="candidate-avatar">SJ</div>
+                                            <div class="candidate-info">
+                                                <div class="candidate-name">Sarah Johnson</div>
+                                                <div class="candidate-title">Senior Frontend Developer</div>
+                                                <div class="candidate-location"><i class="fas fa-map-marker-alt me-1"></i>Dubai, UAE</div>
+                                            </div>
+                                            <div class="match-score">
+                                                <div class="score-circle score-high">94%</div>
+                                                <div class="score-label">Match</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="candidate-skills">
+                                            <span class="candidate-skill">React</span>
+                                            <span class="candidate-skill">TypeScript</span>
+                                            <span class="candidate-skill">Next.js</span>
+                                            <span class="candidate-skill">GraphQL</span>
+                                            <span class="candidate-skill">AWS</span>
+                                        </div>
+                                        
+                                        <div class="candidate-actions">
+                                            <button class="btn-job btn-primary-job" onclick="scheduleInterview('sarah-johnson')">
+                                                <i class="fas fa-calendar me-1"></i>Interview
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="viewProfile('sarah-johnson')">
+                                                <i class="fas fa-eye me-1"></i>Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 mb-3">
+                                    <div class="candidate-card" onclick="viewCandidate('ahmed-hassan')">
+                                        <div class="candidate-header">
+                                            <div class="candidate-avatar">AH</div>
+                                            <div class="candidate-info">
+                                                <div class="candidate-name">Ahmed Hassan</div>
+                                                <div class="candidate-title">Product Manager</div>
+                                                <div class="candidate-location"><i class="fas fa-map-marker-alt me-1"></i>Abu Dhabi, UAE</div>
+                                            </div>
+                                            <div class="match-score">
+                                                <div class="score-circle score-high">89%</div>
+                                                <div class="score-label">Match</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="candidate-skills">
+                                            <span class="candidate-skill">Product Strategy</span>
+                                            <span class="candidate-skill">Agile</span>
+                                            <span class="candidate-skill">Analytics</span>
+                                            <span class="candidate-skill">Leadership</span>
+                                        </div>
+                                        
+                                        <div class="candidate-actions">
+                                            <button class="btn-job btn-primary-job" onclick="scheduleInterview('ahmed-hassan')">
+                                                <i class="fas fa-calendar me-1"></i>Interview
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="viewProfile('ahmed-hassan')">
+                                                <i class="fas fa-eye me-1"></i>Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 mb-3">
+                                    <div class="candidate-card" onclick="viewCandidate('maya-patel')">
+                                        <div class="candidate-header">
+                                            <div class="candidate-avatar">MP</div>
+                                            <div class="candidate-info">
+                                                <div class="candidate-name">Maya Patel</div>
+                                                <div class="candidate-title">Data Scientist</div>
+                                                <div class="candidate-location"><i class="fas fa-map-marker-alt me-1"></i>Dubai, UAE</div>
+                                            </div>
+                                            <div class="match-score">
+                                                <div class="score-circle score-medium">76%</div>
+                                                <div class="score-label">Match</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="candidate-skills">
+                                            <span class="candidate-skill">Python</span>
+                                            <span class="candidate-skill">Machine Learning</span>
+                                            <span class="candidate-skill">SQL</span>
+                                            <span class="candidate-skill">Tableau</span>
+                                        </div>
+                                        
+                                        <div class="candidate-actions">
+                                            <button class="btn-job btn-primary-job" onclick="scheduleInterview('maya-patel')">
+                                                <i class="fas fa-calendar me-1"></i>Interview
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="viewProfile('maya-patel')">
+                                                <i class="fas fa-eye me-1"></i>Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 mb-3">
+                                    <div class="candidate-card" onclick="viewCandidate('raj-kumar')">
+                                        <div class="candidate-header">
+                                            <div class="candidate-avatar">RK</div>
+                                            <div class="candidate-info">
+                                                <div class="candidate-name">Raj Kumar</div>
+                                                <div class="candidate-title">Backend Developer</div>
+                                                <div class="candidate-location"><i class="fas fa-map-marker-alt me-1"></i>Sharjah, UAE</div>
+                                            </div>
+                                            <div class="match-score">
+                                                <div class="score-circle score-medium">72%</div>
+                                                <div class="score-label">Match</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="candidate-skills">
+                                            <span class="candidate-skill">Node.js</span>
+                                            <span class="candidate-skill">MongoDB</span>
+                                            <span class="candidate-skill">Express</span>
+                                            <span class="candidate-skill">Docker</span>
+                                        </div>
+                                        
+                                        <div class="candidate-actions">
+                                            <button class="btn-job btn-primary-job" onclick="scheduleInterview('raj-kumar')">
+                                                <i class="fas fa-calendar me-1"></i>Interview
+                                            </button>
+                                            <button class="btn-job btn-secondary-job" onclick="viewProfile('raj-kumar')">
+                                                <i class="fas fa-eye me-1"></i>Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- AI Candidate Analysis -->
+                        <div class="ai-analysis mb-4">
+                            <div class="analysis-header">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="analysis-content">
+                                    <div class="analysis-title">AI Candidate Insights</div>
+                                    <div class="analysis-description">Smart candidate evaluation</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="mb-2">Top Skills in Pool:</h6>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="candidate-skill">JavaScript</span>
+                                    <span class="candidate-skill">React</span>
+                                    <span class="candidate-skill">Python</span>
+                                    <span class="candidate-skill">Node.js</span>
+                                    <span class="candidate-skill">AWS</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="mb-2">Recommendations:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-1"><small><i class="fas fa-star me-1" style="color: #FFD700;"></i>Sarah Johnson - Perfect fit for Frontend role</small></li>
+                                    <li class="mb-1"><small><i class="fas fa-clock me-1" style="color: var(--accent-blue);"></i>Schedule Ahmed Hassan interview ASAP</small></li>
+                                    <li><small><i class="fas fa-lightbulb me-1" style="color: var(--accent-orange);"></i>Consider Maya for Analytics team</small></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Interview Schedule -->
+                        <div class="glass-card">
+                            <h6 class="mb-3">
+                                <i class="fas fa-calendar-check me-2" style="color: var(--accent-green);"></i>
+                                Upcoming Interviews
+                            </h6>
+                            
+                            <div class="d-flex align-items-center mb-3 p-2" style="background: rgba(59, 130, 246, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="candidate-avatar" style="width: 40px; height: 40px; font-size: 1rem;">SJ</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Sarah Johnson</div>
+                                    <small class="text-secondary">Today, 2:00 PM</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-3 p-2" style="background: rgba(16, 185, 129, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="candidate-avatar" style="width: 40px; height: 40px; font-size: 1rem;">AH</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Ahmed Hassan</div>
+                                    <small class="text-secondary">Tomorrow, 10:00 AM</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-calendar"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="d-flex align-items-center p-2" style="background: rgba(245, 158, 11, 0.1); border-radius: 10px;">
+                                <div class="me-3">
+                                    <div class="candidate-avatar" style="width: 40px; height: 40px; font-size: 1rem;">MP</div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Maya Patel</div>
+                                    <small class="text-secondary">Friday, 3:00 PM</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Onboarding Tab -->
+            <div class="tab-pane fade" id="onboarding" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- New Hire Onboarding -->
+                        <div class="glass-card">
+                            <h5 class="mb-3">
+                                <i class="fas fa-user-check me-2" style="color: var(--accent-mint);"></i>
+                                Sarah Johnson - Onboarding Checklist
+                            </h5>
+                            
+                            <div class="onboarding-item completed">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        Welcome Email Sent
+                                    </div>
+                                    <div class="onboarding-status status-completed">Completed</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Welcome email with first-day information and company handbook sent to candidate.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>HR Team</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Completed 2 days ago</span>
+                                </div>
+                            </div>
+                            
+                            <div class="onboarding-item completed">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        Equipment Ordered
+                                    </div>
+                                    <div class="onboarding-status status-completed">Completed</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Laptop, monitor, keyboard, mouse, and other necessary equipment ordered and shipped.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>IT Department</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Completed 1 day ago</span>
+                                </div>
+                            </div>
+                            
+                            <div class="onboarding-item">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-pending">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        Office Access Setup
+                                    </div>
+                                    <div class="onboarding-status status-pending">Pending</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Create office access card, assign parking spot, and provide building orientation.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>Security Team</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Due today</span>
+                                </div>
+                            </div>
+                            
+                            <div class="onboarding-item">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-pending">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        System Accounts Creation
+                                    </div>
+                                    <div class="onboarding-status status-pending">Pending</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Create email account, Slack workspace access, GitHub access, and other development tools.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>IT Department</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Due tomorrow</span>
+                                </div>
+                            </div>
+                            
+                            <div class="onboarding-item">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-pending">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        Team Introduction
+                                    </div>
+                                    <div class="onboarding-status status-pending">Pending</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Schedule meet-and-greet sessions with team members and key stakeholders.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>Team Lead</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Due in 2 days</span>
+                                </div>
+                            </div>
+                            
+                            <div class="onboarding-item">
+                                <div class="onboarding-header">
+                                    <div class="onboarding-title">
+                                        <div class="onboarding-icon icon-pending">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        First Project Assignment
+                                    </div>
+                                    <div class="onboarding-status status-pending">Pending</div>
+                                </div>
+                                <div class="onboarding-description">
+                                    Assign first project or task to help new hire get familiar with codebase and processes.
+                                </div>
+                                <div class="onboarding-meta">
+                                    <span><i class="fas fa-user me-1"></i>Project Manager</span>
+                                    <span><i class="fas fa-calendar me-1"></i>Due in 3 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <!-- Onboarding Progress -->
+                        <div class="glass-card mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-pie me-2" style="color: var(--accent-blue);"></i>
+                                Onboarding Progress
+                            </h6>
+                            
+                            <div class="text-center mb-3">
+                                <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+                                    <svg width="120" height="120" style="transform: rotate(-90deg);">
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"></circle>
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-mint)" stroke-width="8" 
+                                                stroke-dasharray="314" stroke-dashoffset="188" stroke-linecap="round"></circle>
+                                    </svg>
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 700;">40%</div>
+                                </div>
+                                <div class="mt-2">2 of 5 tasks completed</div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Estimated Completion</span>
+                                <span class="fw-bold">3 days</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Next Due Task</span>
+                                <span class="fw-bold text-warning">Office Access</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Assigned To</span>
+                                <span class="fw-bold">Security Team</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="glass-card">
+                            <h6 class="mb-3">
+                                <i class="fas fa-bolt me-2" style="color: var(--accent-orange);"></i>
+                                Quick Actions
+                            </h6>
+                            
+                            <button class="btn btn-primary-job w-100 mb-2" onclick="sendReminder()">
+                                <i class="fas fa-bell me-2"></i>Send Reminder
+                            </button>
+                            
+                            <button class="btn btn-secondary-job w-100 mb-2" onclick="updateProgress()">
+                                <i class="fas fa-check me-2"></i>Mark Task Complete
+                            </button>
+                            
+                            <button class="btn btn-secondary-job w-100 mb-2" onclick="assignTask()">
+                                <i class="fas fa-user-plus me-2"></i>Assign Task
+                            </button>
+                            
+                            <button class="btn btn-secondary-job w-100" onclick="generateReport()">
+                                <i class="fas fa-file-alt me-2"></i>Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="createNewJob()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // File Upload Functions
+        function triggerFileUpload() {
+            document.getElementById('resumeUpload').click();
+        }
+        
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            processFiles(files);
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const uploadArea = event.target.closest('.resume-upload');
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            processFiles(files);
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const uploadArea = event.target.closest('.resume-upload');
+            uploadArea.classList.add('dragover');
+        }
+        
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const uploadArea = event.target.closest('.resume-upload');
+            uploadArea.classList.remove('dragover');
+        }
+        
+        function processFiles(files) {
+            for (let file of files) {
+                if (file.type === 'application/pdf' || 
+                    file.type === 'application/msword' || 
+                    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                    
+                    // Simulate AI resume parsing
+                    showNotification(`Processing ${file.name}...`, 'info');
+                    
+                    setTimeout(() => {
+                        showNotification(`Resume parsed successfully! Found candidate: ${generateRandomName()}`, 'success');
+                        // Add candidate to the list
+                        addCandidateToList(file.name);
+                    }, 2000);
+                } else {
+                    showNotification('Please upload PDF, DOC, or DOCX files only.', 'error');
+                }
+            }
+        }
+        
+        function generateRandomName() {
+            const names = ['Alex Smith', 'Jordan Lee', 'Taylor Brown', 'Casey Wilson', 'Morgan Davis'];
+            return names[Math.floor(Math.random() * names.length)];
+        }
+        
+        function addCandidateToList(fileName) {
+            // This would typically add the parsed candidate to the candidates list
+            console.log(`Added candidate from ${fileName}`);
+        }
+        
+        // Job Management Functions
+        function viewJob(jobId) {
+            showNotification(`Viewing job details for ${jobId}`, 'info');
+            // Implement job detail view
+        }
+        
+        function editJob(jobId) {
+            showNotification(`Editing job: ${jobId}`, 'info');
+            // Implement job editing
+        }
+        
+        function publishJob(jobId) {
+            showNotification(`Publishing job: ${jobId}`, 'success');
+            // Update job status to active
+        }
+        
+        function viewCandidates(jobId) {
+            showNotification(`Viewing candidates for ${jobId}`, 'info');
+            // Switch to candidates tab and filter by job
+            document.getElementById('candidates-tab').click();
+        }
+        
+        function createNewJob() {
+            showNotification('Creating new job posting...', 'info');
+            // Implement job creation modal
+        }
+        
+        // Candidate Management Functions
+        function viewCandidate(candidateId) {
+            showNotification(`Viewing candidate profile: ${candidateId}`, 'info');
+            // Implement candidate profile view
+        }
+        
+        function scheduleInterview(candidateId) {
+            showNotification(`Scheduling interview for ${candidateId}`, 'success');
+            // Implement interview scheduling
+        }
+        
+        function viewProfile(candidateId) {
+            showNotification(`Opening detailed profile for ${candidateId}`, 'info');
+            // Implement detailed profile view
+        }
+        
+        // Onboarding Functions
+        function sendReminder() {
+            showNotification('Reminder sent to responsible team', 'success');
+        }
+        
+        function updateProgress() {
+            showNotification('Task marked as complete', 'success');
+            // Update onboarding progress
+        }
+        
+        function assignTask() {
+            showNotification('Task assignment dialog opened', 'info');
+            // Implement task assignment
+        }
+        
+        function generateReport() {
+            showNotification('Generating onboarding report...', 'info');
+            // Generate and download report
+        }
+        
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            console.log('Recruitment & Onboarding module loaded successfully');
+        });
+    </script>
+</body>
+</html>

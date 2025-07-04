@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance & Check-in - Sam AI HR Suite by SnashWorld</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --accent-mint: #10B981;
+            --accent-blue: #3B82F6;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-green: #22C55E;
+            --dark-bg: #0F0F23;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3), 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-tabs {
+            border: none;
+            gap: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        /* Check-in Camera */
+        .camera-container {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            height: 400px;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--accent-mint);
+            border-radius: 50%;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--accent-mint); }
+            50% { border-color: var(--primary-purple); }
+            100% { border-color: var(--accent-mint); }
+        }
+
+        .verification-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+            border: 1px solid #F59E0B;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-mint);
+            border: 1px solid var(--accent-mint);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border: 1px solid #EF4444;
+        }
+
+        /* Verification Cards */
+        .verification-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .verification-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .verification-card.verified .verification-icon {
+            opacity: 1;
+            color: var(--accent-mint);
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            80% { transform: translateY(-5px); }
+        }
+
+        /* Check-in Button */
+        .checkin-btn {
+            background: linear-gradient(135deg, var(--primary-purple), var(--accent-blue));
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .checkin-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+        }
+
+        .checkin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* RFID Input */
+        .rfid-input {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-primary);
+            padding: 1rem;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .rfid-input:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Location Status */
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Attendance History */
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .attendance-item:last-child {
+            border-bottom: none;
+        }
+
+        .time-badge {
+            background: var(--primary-purple);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                <i class="fas fa-brain me-2" style="color: var(--primary-purple);"></i>
+                HR Suite <span style="color: var(--accent-mint);">AI</span>
+            </a>
+            
+            <ul class="nav nav-tabs ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/attendance"><i class="fas fa-clock me-2"></i>Attendance</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/employees"><i class="fas fa-users me-2"></i>Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tasks"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ai-assistant"><i class="fas fa-robot me-2"></i>AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rewards"><i class="fas fa-coins me-2"></i>Rewards</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Check-in Section -->
+            <div class="col-lg-8 mb-4">
+                <div class="glass-card">
+                    <h4 class="mb-4">
+                        <i class="fas fa-camera me-2" style="color: var(--accent-mint);"></i>
+                        Smart Check-in System
+                    </h4>
+                    
+                    <!-- Camera Feed -->
+                    <div class="camera-container mb-4">
+                        <video id="video" autoplay muted></video>
+                        <div class="camera-overlay"></div>
+                        <div class="verification-status status-pending" id="faceStatus">
+                            <i class="fas fa-user-circle me-2"></i>Face: Scanning...
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Steps -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="verification-card glass-card" id="faceCard">
+                                <div class="verification-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <h6>Face Recognition</h6>
+                                <small class="text-secondary">Liveness detection active</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="verification-card glass-card" id="gpsCard">
+                                <div class="verification-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <h6>GPS Location</h6>
+                                <small class="text-secondary">Geo-fence validation</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="verification-card glass-card" id="rfidCard">
+                                <div class="verification-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <h6>RFID/NFC Card</h6>
+                                <small class="text-secondary">Tap or scan your card</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RFID Input -->
+                    <div class="mb-4">
+                        <label class="form-label">RFID/NFC Card Code</label>
+                        <input type="text" class="form-control rfid-input" id="rfidInput" 
+                               placeholder="Tap card or enter code" maxlength="8">
+                    </div>
+                    
+                    <!-- Location Status -->
+                    <div class="location-status status-pending mb-4" id="locationStatus">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        <span>Getting your location...</span>
+                    </div>
+                    
+                    <!-- Check-in Button -->
+                    <button class="checkin-btn" id="checkinBtn" onclick="performCheckin()" disabled>
+                        <i class="fas fa-clock me-2"></i>
+                        Complete Check-in
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Today's Status -->
+                <div class="glass-card mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-calendar-day me-2" style="color: var(--primary-purple);"></i>
+                        Today's Status
+                    </h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Check-in Time:</span>
+                        <span class="time-badge" id="checkinTime">Not checked in</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Hours Worked:</span>
+                        <span class="text-success fw-bold" id="hoursWorked">0h 0m</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Status:</span>
+                        <span class="badge bg-warning" id="workStatus">Pending Check-in</span>
+                    </div>
+                </div>
+                
+                <!-- Recent Attendance -->
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-history me-2" style="color: var(--accent-blue);"></i>
+                        Recent Attendance
+                    </h5>
+                    <div id="attendanceHistory">
+                        <div class="attendance-item">
+                            <div>
+                                <strong>Yesterday</strong><br>
+                                <small class="text-secondary">Jan 15, 2025</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="time-badge">9:15 AM</div>
+                                <small class="text-success d-block">8h 45m</small>
+                            </div>
+                        </div>
+                        <div class="attendance-item">
+                            <div>
+                                <strong>Monday</strong><br>
+                                <small class="text-secondary">Jan 13, 2025</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="time-badge">9:02 AM</div>
+                                <small class="text-success d-block">9h 12m</small>
+                            </div>
+                        </div>
+                        <div class="attendance-item">
+                            <div>
+                                <strong>Friday</strong><br>
+                                <small class="text-secondary">Jan 10, 2025</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="time-badge">8:58 AM</div>
+                                <small class="text-success d-block">8h 30m</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let faceVerified = false;
+        let gpsVerified = false;
+        let rfidVerified = false;
+        let currentLocation = null;
+        
+        // Initialize camera
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 640, 
+                        height: 480,
+                        facingMode: 'user'
+                    } 
+                });
+                document.getElementById('video').srcObject = stream;
+                
+                // Start face detection
+                setTimeout(() => {
+                    simulateFaceDetection();
+                }, 2000);
+                
+            } catch (err) {
+                console.error('Camera access denied:', err);
+                document.getElementById('faceStatus').textContent = 'Camera access denied';
+                document.getElementById('faceStatus').className = 'verification-status status-error';
+            }
+        }
+        
+        // Simulate face detection (in real app, use face-api.js or similar)
+        function simulateFaceDetection() {
+            setTimeout(() => {
+                faceVerified = true;
+                document.getElementById('faceStatus').innerHTML = '<i class="fas fa-check-circle me-2"></i>Face: Verified';
+                document.getElementById('faceStatus').className = 'verification-status status-success';
+                document.getElementById('faceCard').classList.add('verified');
+                checkAllVerifications();
+            }, 3000);
+        }
+        
+        // Get GPS location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        // Validate geo-fence (simulate office location)
+                        const isInOffice = validateGeoFence(currentLocation);
+                        
+                        if (isInOffice) {
+                            gpsVerified = true;
+                            document.getElementById('locationStatus').innerHTML = 
+                                '<i class="fas fa-check-circle me-2"></i>Location verified - You are in office premises';
+                            document.getElementById('locationStatus').className = 'location-status status-success';
+                            document.getElementById('gpsCard').classList.add('verified');
+                        } else {
+                            document.getElementById('locationStatus').innerHTML = 
+                                '<i class="fas fa-exclamation-triangle me-2"></i>Location outside office geo-fence';
+                            document.getElementById('locationStatus').className = 'location-status status-error';
+                        }
+                        
+                        checkAllVerifications();
+                    },
+                    (error) => {
+                        document.getElementById('locationStatus').innerHTML = 
+                            '<i class="fas fa-times-circle me-2"></i>Location access denied';
+                        document.getElementById('locationStatus').className = 'location-status status-error';
+                    }
+                );
+            }
+        }
+        
+        // Validate geo-fence
+        function validateGeoFence(location) {
+            // Office coordinates (example: Bangalore tech park)
+            const officeLat = 12.9716;
+            const officeLng = 77.5946;
+            
+            const distance = Math.sqrt(
+                Math.pow(location.lat - officeLat, 2) + 
+                Math.pow(location.lng - officeLng, 2)
+            );
+            
+            return distance < 0.01; // Within ~1km radius
+        }
+        
+        // RFID input handler
+        document.getElementById('rfidInput').addEventListener('input', function(e) {
+            const rfidCode = e.target.value.toUpperCase();
+            
+            if (rfidCode.length >= 6) {
+                // Simulate RFID validation
+                setTimeout(() => {
+                    if (validateRFID(rfidCode)) {
+                        rfidVerified = true;
+                        document.getElementById('rfidCard').classList.add('verified');
+                        e.target.style.borderColor = 'var(--accent-mint)';
+                    } else {
+                        e.target.style.borderColor = '#EF4444';
+                    }
+                    checkAllVerifications();
+                }, 500);
+            }
+        });
+        
+        // Validate RFID (simulate)
+        function validateRFID(code) {
+            // Simulate valid RFID codes
+            const validCodes = ['XC7F21', 'AB123C', 'DEF456', 'GHI789'];
+            return validCodes.includes(code);
+        }
+        
+        // Check if all verifications are complete
+        function checkAllVerifications() {
+            const checkinBtn = document.getElementById('checkinBtn');
+            
+            if (faceVerified && gpsVerified && rfidVerified) {
+                checkinBtn.disabled = false;
+                checkinBtn.innerHTML = '<i class="fas fa-check me-2"></i>All Verified - Check In Now!';
+            }
+        }
+        
+        // Perform check-in
+        async function performCheckin() {
+            const checkinBtn = document.getElementById('checkinBtn');
+            checkinBtn.disabled = true;
+            checkinBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            try {
+                const response = await fetch('/api/checkin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        face_verified: faceVerified,
+                        gps: currentLocation,
+                        rfid: document.getElementById('rfidInput').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update UI
+                    const now = new Date();
+                    document.getElementById('checkinTime').textContent = now.toLocaleTimeString();
+                    document.getElementById('workStatus').textContent = 'Checked In';
+                    document.getElementById('workStatus').className = 'badge bg-success';
+                    
+                    checkinBtn.innerHTML = '<i class="fas fa-check me-2"></i>Checked In Successfully!';
+                    checkinBtn.style.background = 'var(--accent-mint)';
+                    
+                    // Show success message
+                    showNotification('Check-in successful! Welcome to work! 🎉', 'success');
+                    
+                    // Start work timer
+                    startWorkTimer();
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                checkinBtn.disabled = false;
+                checkinBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Check-in Failed';
+                showNotification('Check-in failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Start work timer
+        function startWorkTimer() {
+            const startTime = new Date();
+            
+            setInterval(() => {
+                const now = new Date();
+                const diff = now - startTime;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('hoursWorked').textContent = `${hours}h ${minutes}m`;
+            }, 60000); // Update every minute
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initCamera();
+            getLocation();
+            
+            // Simulate RFID tap (for demo)
+            setTimeout(() => {
+                document.getElementById('rfidInput').value = 'XC7F21';
+                document.getElementById('rfidInput').dispatchEvent(new Event('input'));
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

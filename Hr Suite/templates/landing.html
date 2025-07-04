@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnashWorld AI HR Suite - Revolutionize Your Workforce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Corporate Creative Palette */
+            --primary-navy: #1B2951;
+            --primary-blue: #2E5BFF;
+            --accent-cyan: #00D4FF;
+            --accent-purple: #8B5FBF;
+            --accent-gold: #FFB800;
+            --success-green: #00C896;
+            --warning-orange: #FF8A00;
+            --error-red: #FF4757;
+            --neutral-100: #F8FAFC;
+            --neutral-200: #E2E8F0;
+            --neutral-300: #CBD5E1;
+            --neutral-400: #94A3B8;
+            --neutral-500: #64748B;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1E293B;
+            --neutral-900: #0F172A;
+            
+            /* Light Mode (Default) */
+            --bg-primary: var(--neutral-100);
+            --bg-secondary: var(--neutral-200);
+            --card-bg: #FFFFFF;
+            --text-primary: var(--neutral-900);
+            --text-secondary: var(--neutral-600);
+            --border-color: var(--neutral-300);
+            --card-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+            --corporate-glow: 0 0 32px rgba(46, 91, 255, 0.15);
+            --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-cyan) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--accent-purple) 0%, var(--primary-blue) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-gold) 0%, var(--warning-orange) 100%);
+            --gradient-hero: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-blue) 50%, var(--accent-cyan) 100%);
+        }
+
+        /* Dark Mode Variables - Applied Directly */
+        body {
+            --bg-primary: var(--neutral-900);
+            --bg-secondary: var(--neutral-800);
+            --card-bg: var(--neutral-800);
+            --text-primary: var(--neutral-100);
+            --text-secondary: var(--neutral-400);
+            --border-color: var(--neutral-700);
+            --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+            --corporate-glow: 0 0 32px rgba(0, 212, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode Styles - Applied Directly */
+        .navbar {
+            background: rgba(30, 41, 59, 0.95);
+            border-bottom: 3px solid var(--accent-cyan);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: var(--neutral-100) !important;
+        }
+
+        .glass-card,
+        .neo-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .hero-title {
+            color: var(--text-primary);
+        }
+
+        .hero-subtitle,
+        .section-subtitle,
+        .feature-desc,
+        .testimonial-quote {
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .phone-mockup {
+            background: linear-gradient(135deg, var(--neutral-800), var(--neutral-900));
+        }
+
+        .phone-screen {
+            background: var(--neutral-900);
+        }
+
+        /* Neo Brutalist Cards */
+        .neo-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .neo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--neo-glow), var(--card-shadow);
+            border-color: var(--accent-primary);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--neo-glow), var(--card-shadow);
+            border-color: var(--accent-primary);
+        }
+
+        /* Corporate Navigation */
+        .navbar {
+            background: var(--card-bg);
+            border-bottom: 3px solid var(--accent-cyan);
+            padding: 1rem 0;
+            box-shadow: var(--card-shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--text-primary) !important;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem !important;
+            border-radius: 10px;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-cyan) !important;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 100px;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="200" r="3" fill="%2332f5c8" opacity="0.3"/><circle cx="800" cy="400" r="2" fill="%236366f1" opacity="0.3"/><circle cx="400" cy="800" r="2.5" fill="%238b5cf6" opacity="0.3"/><circle cx="600" cy="100" r="1.5" fill="%23aaccff" opacity="0.3"/></svg>');
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .highlight {
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px rgba(46, 91, 255, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 15px rgba(139, 95, 191, 0.8));
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Corporate Buttons */
+        .glow-btn {
+            background: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .glow-btn:hover {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--corporate-glow);
+        }
+
+        .glow-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .glow-btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--corporate-glow);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            height: 100%;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: var(--corporate-glow);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Mobile Preview */
+        .mobile-preview {
+            padding: 100px 0;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--neutral-700), var(--neutral-800));
+            border-radius: 40px;
+            padding: 20px;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: var(--card-shadow);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-content {
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .phone-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .phone-stat {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .phone-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .phone-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Testimonials */
+        .testimonials-section {
+            padding: 100px 0;
+        }
+
+        .testimonial-card {
+            text-align: center;
+            position: relative;
+        }
+
+        .testimonial-quote {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .testimonial-company {
+            color: var(--accent-mint);
+            font-weight: 500;
+        }
+
+        .testimonial-rating {
+            color: #fbbf24;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 60px 0 30px;
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-tagline {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-cyan);
+        }
+
+        .footer-copyright {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .phone-mockup {
+                width: 250px;
+                height: 500px;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s ease;
+        }
+
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-brain me-2" style="color: var(--accent-cyan);"></i>
+                SnashWorld
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#mobile">Mobile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">Testimonials</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 slide-in-left">
+                    <h1 class="hero-title">Revolutionize Your Workforce with <span class="highlight">AI + Blockchain</span></h1>
+                    <p class="hero-subtitle">
+                        Smart HR automation, task tracking, facial attendance, and rewards — all in one platform. 
+                        Meet Sam, your intelligent HR assistant powered by cutting-edge AI.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="/dashboard" class="glow-btn">
+                            <i class="fas fa-rocket me-2"></i>Get Started
+                        </a>
+                        <a href="#features" class="glow-btn glow-btn-secondary">
+                            <i class="fas fa-file-alt me-2"></i>Explore Features
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center slide-in-right">
+                    <div class="glass-card">
+                        <h3 class="mb-3"><i class="fas fa-brain me-2" style="color: var(--accent-cyan);"></i>Sam AI Assistant</h3>
+                        <p class="mb-3">"Hello! I'm Sam, your Smart HR Assistant. I can help you with:</p>
+                        <ul class="list-unstyled text-start">
+                            <li class="mb-2"><i class="fas fa-check me-2" style="color: var(--accent-cyan);"></i>Automated task assignments</li>
+                            <li class="mb-2"><i class="fas fa-check me-2" style="color: var(--accent-cyan);"></i>Smart leave management</li>
+                            <li class="mb-2"><i class="fas fa-check me-2" style="color: var(--accent-cyan);"></i>Performance analytics</li>
+                            <li class="mb-2"><i class="fas fa-check me-2" style="color: var(--accent-cyan);"></i>Policy generation</li>
+                        </ul>
+                        <p class="text-secondary">Powered by Gemini + DeepSeek AI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="fade-in">
+                <h2 class="section-title">Powerful Features for Modern HR</h2>
+                <p class="section-subtitle">Everything you need to manage your workforce intelligently</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="feature-title">🧠 AI Assistant (Gemini + DeepSeek)</h3>
+                        <p class="feature-desc">
+                            Smart HR actions, summaries & automation via voice or text. 
+                            Sam understands natural language and executes complex HR tasks instantly.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 class="feature-title">📍 GPS & Face Attendance</h3>
+                        <p class="feature-desc">
+                            Triple-auth attendance using GPS + Camera + Card verification. 
+                            Eliminate time theft and ensure accurate attendance tracking.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">📊 Real-Time Dashboard</h3>
+                        <p class="feature-desc">
+                            Visual KPIs, AI alerts, performance heatmaps with glassmorphism design. 
+                            Get insights that matter, when they matter.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3 class="feature-title">💼 Task Board with AI Insights</h3>
+                        <p class="feature-desc">
+                            Assign, drag, track, and complete — smartly balanced by AI. 
+                            Automatic workload distribution and deadline optimization.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h3 class="feature-title">🎖️ SnashToken Rewards</h3>
+                        <p class="feature-desc">
+                            Blockchain-based rewards for productivity and learning. 
+                            Transparent, secure, and motivating token economy.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 fade-in">
+                    <div class="glass-card feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-export"></i>
+                        </div>
+                        <h3 class="feature-title">🧾 Reports & Exports</h3>
+                        <p class="feature-desc">
+                            Generate HR reports, predictions & PDF exports in one click. 
+                            AI-powered analytics with actionable recommendations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Preview Section -->
+    <section id="mobile" class="mobile-preview">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 slide-in-left">
+                    <h2 class="section-title text-start">Mobile-First Experience</h2>
+                    <p class="section-subtitle text-start">
+                        Access your HR suite anywhere, anytime. Our mobile-optimized interface 
+                        ensures you stay connected with your workforce on the go.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-mobile-alt me-3" style="color: var(--accent-cyan);"></i>
+                            <strong>Quick Check-ins:</strong> GPS + Face recognition in seconds
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-bell me-3" style="color: var(--accent-cyan);"></i>
+                            <strong>Smart Notifications:</strong> AI-powered alerts and reminders
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-microphone me-3" style="color: var(--accent-cyan);"></i>
+                            <strong>Voice Commands:</strong> Talk to Sam for instant actions
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-sync me-3" style="color: var(--accent-cyan);"></i>
+                            <strong>Real-time Sync:</strong> Always up-to-date across all devices
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 text-center slide-in-right">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="phone-content">
+                                <div class="phone-header">
+                                    <i class="fas fa-brain me-2"></i>Sam AI Dashboard
+                                </div>
+                                <div class="phone-stats">
+                                    <div class="phone-stat">
+                                        <div class="phone-stat-value">94%</div>
+                                        <div class="phone-stat-label">Attendance</div>
+                                    </div>
+                                    <div class="phone-stat">
+                                        <div class="phone-stat-value">12</div>
+                                        <div class="phone-stat-label">Tasks</div>
+                                    </div>
+                                    <div class="phone-stat">
+                                        <div class="phone-stat-value">247</div>
+                                        <div class="phone-stat-label">Employees</div>
+                                    </div>
+                                    <div class="phone-stat">
+                                        <div class="phone-stat-value">1.2K</div>
+                                        <div class="phone-stat-label">Tokens</div>
+                                    </div>
+                                </div>
+                                <div style="background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 15px;">
+                                    <div style="font-weight: 600; margin-bottom: 10px;">🧠 Sam's Insight</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">3 employees need attention. Schedule 1-on-1 sessions.</div>
+                                </div>
+                                <div style="background: var(--gradient-primary); border-radius: 15px; padding: 15px; text-align: center; color: white; font-weight: 700;">
+                                    <i class="fas fa-camera me-2"></i>Quick Check-in
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="container">
+            <div class="fade-in">
+                <h2 class="section-title">What Our Clients Say</h2>
+                <p class="section-subtitle">Trusted by forward-thinking companies worldwide</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4 mb-4 fade-in">
+                    <div class="glass-card testimonial-card">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-quote">
+                            "Sam AI has revolutionized our HR processes. What used to take hours now happens in minutes. 
+                            The facial recognition attendance is incredibly accurate."
+                        </p>
+                        <div class="testimonial-author">Sarah Chen</div>
+                        <div class="testimonial-company">TechCorp Solutions</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mb-4 fade-in">
+                    <div class="glass-card testimonial-card">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-quote">
+                            "The SnashToken reward system has boosted our team productivity by 40%. 
+                            Employees are more engaged and motivated than ever."
+                        </p>
+                        <div class="testimonial-author">Marcus Johnson</div>
+                        <div class="testimonial-company">InnovateLab Inc.</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mb-4 fade-in">
+                    <div class="glass-card testimonial-card">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-quote">
+                            "The AI insights are incredibly valuable. Sam predicts attrition risks 
+                            and helps us take proactive measures to retain talent."
+                        </p>
+                        <div class="testimonial-author">Elena Rodriguez</div>
+                        <div class="testimonial-company">Global Dynamics</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="footer-brand">
+                        <i class="fas fa-brain me-2" style="color: var(--accent-cyan);"></i>
+                        SnashWorld AI HR Suite
+                    </div>
+                    <p class="footer-tagline">Built for the Future of Work</p>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Privacy</a>
+                        <a href="#" class="footer-link">Terms</a>
+                        <a href="#" class="footer-link">Contact</a>
+                        <a href="#" class="footer-link">Careers</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-lg-end">
+                    <p class="mb-3">Ready to transform your HR?</p>
+                    <a href="/dashboard" class="glow-btn">
+                        <i class="fas fa-rocket me-2"></i>Start Free Trial
+                    </a>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2025 SnashWorld. All rights reserved. Powered by AI, Secured by Blockchain.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animation elements
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(15, 23, 42, 0.95)';
+            } else {
+                navbar.style.background = 'var(--card-bg)';
+            }
+        });
+
+        // Initialize animations on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add initial animation classes
+            setTimeout(() => {
+                document.querySelectorAll('.slide-in-left, .slide-in-right').forEach((el, index) => {
+                    setTimeout(() => {
+                        el.classList.add('visible');
+                    }, index * 200);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
